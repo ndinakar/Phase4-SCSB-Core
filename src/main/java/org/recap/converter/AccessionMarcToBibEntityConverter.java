@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.marc4j.marc.Leader;
 import org.marc4j.marc.Record;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionRequest;
@@ -286,6 +287,11 @@ public class AccessionMarcToBibEntityConverter extends AccessionXmlConverterAbst
         String itemLibrary = marcUtil.getDataFieldValue(itemRecord, "876", 'k');
         if (StringUtils.isNotBlank(itemLibrary)) {
             itemEntity.setItemLibrary(itemLibrary);
+        }
+        Map<String, String> itemLibraryPropertyMap = propertyUtil.getPropertyByKeyForAllInstitutions(PropertyKeyConstants.ILS.ILS_ITEM_LIBRARY_REQUIRED);
+        Boolean isItemLibraryRequired = Boolean.parseBoolean(itemLibraryPropertyMap.get(institutionName));
+        if(isItemLibraryRequired &&itemEntity.getItemLibrary() == null ) {
+            isComplete = false;
         }
         if (owningInstitutionId != null) {
             itemEntity.setOwningInstitutionId(owningInstitutionId);

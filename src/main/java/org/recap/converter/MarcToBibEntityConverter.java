@@ -4,6 +4,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.marc4j.marc.Record;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.BibliographicEntity;
@@ -23,6 +24,7 @@ import org.recap.repository.jpa.OwnerCodeDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
+import org.recap.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +64,9 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
 
     @Autowired
     private ImsLocationDetailsRepository imsLocationDetailsRepository;
+
+    @Autowired
+    private PropertyUtil propertyUtil;
 
     @Override
     public Map convert(Object marcRecord, InstitutionEntity institutionEntity) {
@@ -187,8 +192,12 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         if (StringUtils.isNotBlank(ownerCode)) {
             itemEntity.setCustomerCode(ownerCode);
         }
-        String itemLibrary = marcUtil.getDataFieldValue(itemRecord, "876", 'k');
-        if (StringUtils.isNotBlank(itemLibrary)) {
+        String itemLibrary = null;
+        itemLibrary = marcUtil.getDataFieldValue(itemRecord, "876", 'k');
+        Map<String, String> itemLibraryPropertyMap = propertyUtil.getPropertyByKeyForAllInstitutions(PropertyKeyConstants.ILS.ILS_ITEM_LIBRARY_REQUIRED);
+        Boolean isItemLibraryRequired = Boolean.parseBoolean(itemLibraryPropertyMap.get(institutionEntity.getInstitutionCode()));
+
+        if (StringUtils.isNotBlank(itemLibrary) && itemLibrary != null) {
             itemEntity.setItemLibrary(itemLibrary);
         }
 
@@ -221,6 +230,9 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
             errorMessage.append(" Item Owning Institution Id cannot be null");
         }
 
+        if(isItemLibraryRequired && itemLibrary == null) {
+            itemEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
+        }
         itemEntity.setCreatedDate(currentDate);
         itemEntity.setCreatedBy(ScsbConstants.SUBMIT_COLLECTION);
         itemEntity.setLastUpdatedDate(currentDate);

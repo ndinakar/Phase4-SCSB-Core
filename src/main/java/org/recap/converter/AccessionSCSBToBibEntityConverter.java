@@ -2,6 +2,7 @@ package org.recap.converter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionRequest;
@@ -97,7 +98,7 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
                                 List<RecordType> itemRecordTypes = itemContentCollection.getRecord();
                                 for (RecordType itemRecordType : itemRecordTypes) {
 
-                                    Map<String, Object> itemMap = processAndValidateItemEntity(bibliographicEntity, owningInstitutionId, holdingsCallNumber, holdingsCallNumberType, itemRecordType,accessionRequest,currentDate,errorMessage,imsLocationEntity);
+                                    Map<String, Object> itemMap = processAndValidateItemEntity(bibliographicEntity, owningInstitutionId,institutionName, holdingsCallNumber, holdingsCallNumberType, itemRecordType,accessionRequest,currentDate,errorMessage,imsLocationEntity);
 
                                     if (itemMap != null) {
                                         if(itemMap.containsKey(ScsbCommonConstants.FAILED_ITEM_COUNT)){
@@ -266,7 +267,7 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
      * @param errorMessage
      * @return
      */
-    private Map<String, Object> processAndValidateItemEntity(BibliographicEntity bibliographicEntity, Integer owningInstitutionId,
+    private Map<String, Object> processAndValidateItemEntity(BibliographicEntity bibliographicEntity, Integer owningInstitutionId, String institutionName,
                                                              String holdingsCallNumber, String holdingsCallNumberType, RecordType itemRecordType,AccessionRequest accessionRequest,
                                                              Date currentDate,StringBuilder errorMessage,ImsLocationEntity imsLocationEntity) {
 
@@ -318,6 +319,11 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
             String itemLibrary = getMarcUtil().getDataFieldValueForRecordType(itemRecordType, "876", null, null, "k");
             if (StringUtils.isNotBlank(itemLibrary) ) {
                 itemEntity.setItemLibrary(itemLibrary);
+            }
+            Map<String, String> itemLibraryPropertyMap = propertyUtil.getPropertyByKeyForAllInstitutions(PropertyKeyConstants.ILS.ILS_ITEM_LIBRARY_REQUIRED);
+            Boolean isItemLibraryRequired = Boolean.parseBoolean(itemLibraryPropertyMap.get(institutionName));
+            if(isItemLibraryRequired &&itemEntity.getItemLibrary() == null ) {
+                isComplete = false;
             }
 
             String useRestrictions = getMarcUtil().getDataFieldValueForRecordType(itemRecordType, "876", null, null, "h");
