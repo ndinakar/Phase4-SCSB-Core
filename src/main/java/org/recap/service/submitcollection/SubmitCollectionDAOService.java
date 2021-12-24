@@ -11,12 +11,14 @@ import org.recap.model.submitcollection.BoundWithBibliographicEntityObject;
 import org.recap.model.submitcollection.NonBoundWithBibliographicEntityObject;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
+import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.common.RepositoryService;
 import org.recap.service.common.SetupDataService;
 import org.recap.service.submitcollection.callable.SubmitCollectionMatchPointsCheckCallable;
 import org.recap.util.BibJSONUtil;
 import org.recap.util.MarcUtil;
+import org.recap.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -69,6 +72,9 @@ public class SubmitCollectionDAOService {
     BibliographicDetailsRepository bibliographicDetailsRepository;
 
     @Autowired
+    InstitutionDetailsRepository institutionDetailsRepository;
+
+    @Autowired
     private SubmitCollectionService submitCollectionService;
 
     @Autowired
@@ -91,6 +97,9 @@ public class SubmitCollectionDAOService {
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private PropertyUtil propertyUtil;
 
     /**
      * Update bibliographic entity in batch for non bound with list.
@@ -1263,13 +1272,26 @@ public class SubmitCollectionDAOService {
     }
 
     private ItemEntity copyItemEntity(ItemEntity fetchItemEntity, ItemEntity itemEntity, List<ItemEntity> itemEntityList) {
+        Boolean isItemLibraryRequired = false;
         fetchItemEntity.setLastUpdatedBy(itemEntity.getLastUpdatedBy());
         fetchItemEntity.setLastUpdatedDate(itemEntity.getLastUpdatedDate());
         fetchItemEntity.setCallNumber(itemEntity.getCallNumber());
         fetchItemEntity.setCallNumberType(itemEntity.getCallNumberType());
+        Map<String, String> itemLibraryPropertyMap = propertyUtil.getPropertyByKeyForAllInstitutions(PropertyKeyConstants.ILS.ILS_ITEM_LIBRARY_REQUIRED);
+
+        Optional<InstitutionEntity> institutionEntityOptional = institutionDetailsRepository.findById(itemEntity.getOwningInstitutionId());
+        String institutionCode = null;
+        if(institutionEntityOptional.isPresent()) {
+            institutionCode = institutionEntityOptional.get().getInstitutionCode();
+        }
+       isItemLibraryRequired = Boolean.parseBoolean(itemLibraryPropertyMap.get(institutionCode));
+
+        if(itemEntity.getItemLibrary() != null) {
+            fetchItemEntity.setItemLibrary(itemEntity.getItemLibrary());
+        }
         if((fetchItemEntity.getUseRestrictions() == null && itemEntity.getUseRestrictions() == null )
                 || (fetchItemEntity.getCollectionGroupEntity().getCollectionGroupCode().equals(ScsbCommonConstants.NOT_AVAILABLE_CGD)
-                && itemEntity.getCollectionGroupId()==null)){
+                && itemEntity.getCollectionGroupId()==null) || (isItemLibraryRequired && fetchItemEntity.getItemLibrary() == null && itemEntity.getItemLibrary() == null)) {
             fetchItemEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
         } else{
             if (fetchItemEntity.getCatalogingStatus().equals(ScsbCommonConstants.INCOMPLETE_STATUS)) {//To  update the item available status to available for existing incomplete record which is turning as complete record

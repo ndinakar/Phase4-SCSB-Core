@@ -3,6 +3,7 @@ package org.recap.converter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.marc4j.marc.Record;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.jaxb.BibRecord;
@@ -20,6 +21,7 @@ import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
+import org.recap.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,9 @@ public class SCSBToBibEntityConverter implements XmlToBibEntityConverterInterfac
 
     @Autowired
     private MarcUtil marcUtil;
+
+    @Autowired
+    private PropertyUtil propertyUtil;
 
     /**
      * The Bibliographic details repository.
@@ -79,6 +84,7 @@ public class SCSBToBibEntityConverter implements XmlToBibEntityConverterInterfac
             Record bibRecordObject = bibMarcRecord.getBibRecord();
            
             Integer owningInstitutionId = institutionEntity.getId();
+            String owningInstitutionCode = institutionEntity.getInstitutionCode();
             Map<String, Object> bibMap = processAndValidateBibliographicEntity(bibRecordObject, owningInstitutionId,  owningInstitutionBibId, errorMessage);
             BibliographicEntity bibliographicEntity = (BibliographicEntity) bibMap.get(ScsbConstants.BIBLIOGRAPHIC_ENTITY);
             ReportEntity bibReportEntity = (ReportEntity) bibMap.get("bibReportEntity");
@@ -116,7 +122,7 @@ public class SCSBToBibEntityConverter implements XmlToBibEntityConverterInterfac
                         String itemContent = itemContentCollection.serialize(itemContentCollection);
                         List<Record> itemRecordList = marcUtil.convertMarcXmlToRecord(itemContent);
                         for (Record itemRecord : itemRecordList) {
-                            Map<String, Object> itemMap = processAndValidateItemEntity(owningInstitutionId, holdingsCallNumber, holdingsCallNumberType, itemRecord, errorMessage);
+                            Map<String, Object> itemMap = processAndValidateItemEntity(owningInstitutionId, owningInstitutionCode, holdingsCallNumber, holdingsCallNumberType, itemRecord, errorMessage);
                             commonUtil.addItemAndReportEntities(itemEntities, reportEntities, processHoldings, holdingsEntity, itemMap);
                         }
                     }
@@ -195,7 +201,7 @@ public class SCSBToBibEntityConverter implements XmlToBibEntityConverterInterfac
      * @param itemRecord
      * @return
      */
-    private Map<String, Object> processAndValidateItemEntity(Integer owningInstitutionId, String holdingsCallNumber, Character holdingsCallNumberType, Record itemRecord, 
+    private Map<String, Object> processAndValidateItemEntity(Integer owningInstitutionId, String owningInstitutionCode, String holdingsCallNumber, Character holdingsCallNumberType, Record itemRecord,
                                                              StringBuilder errorMessage) {
         Map<String, Object> map = new HashMap<>();
         ItemEntity itemEntity = new ItemEntity();
@@ -212,6 +218,8 @@ public class SCSBToBibEntityConverter implements XmlToBibEntityConverterInterfac
             itemEntity.setCustomerCode(customerCode);
         }
         String itemLibrary = marcUtil.getDataFieldValue(itemRecord, "876", 'k');
+        Map<String, String> itemLibraryPropertyMap = propertyUtil.getPropertyByKeyForAllInstitutions(PropertyKeyConstants.ILS.ILS_ITEM_LIBRARY_REQUIRED);
+        Boolean isItemLibraryRequired = Boolean.parseBoolean(itemLibraryPropertyMap.get(owningInstitutionCode));
         if (itemLibrary != null) {
             itemEntity.setItemLibrary(itemLibrary);
         }
@@ -244,6 +252,9 @@ public class SCSBToBibEntityConverter implements XmlToBibEntityConverterInterfac
             errorMessage.append(" Item Owning Institution Id cannot be null");
         }
 
+        if(isItemLibraryRequired && itemEntity.getItemLibrary() == null) {
+            itemEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
+        }
         itemEntity.setCreatedDate(currentDate);
         itemEntity.setCreatedBy(ScsbConstants.SUBMIT_COLLECTION);
         itemEntity.setLastUpdatedDate(currentDate);
