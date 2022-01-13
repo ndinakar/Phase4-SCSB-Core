@@ -1,18 +1,18 @@
 package org.recap.routebuilder;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class AccessionReportsRouteBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessionReportsRouteBuilder.class);
+
 
     /**
      * This method instantiates a new reports route builder to save accession reports in database.
@@ -32,7 +32,7 @@ public class AccessionReportsRouteBuilder {
                 }
             });
         } catch (Exception e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            log.error(ScsbCommonConstants.LOG_ERROR,e);
         }
     }
 

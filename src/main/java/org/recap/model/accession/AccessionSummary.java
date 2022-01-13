@@ -1,12 +1,14 @@
 package org.recap.model.accession;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 /**
  * Created by sheiks on 15/06/17.
  */
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class AccessionSummary {
     @NonNull
     private String type;

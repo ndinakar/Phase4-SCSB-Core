@@ -1,7 +1,7 @@
 package org.recap.model.jpa;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
@@ -17,11 +17,10 @@ import java.util.List;
 /**
  * Created by rajeshbabuk on 10/10/17.
  */
+@Data
 @Entity
 @Table(name = "bulk_request_item_t", catalog = "")
 @AttributeOverride(name = "id", column = @Column(name = "BULK_REQUEST_ID"))
-@Getter
-@Setter
 public class BulkRequestItemEntity extends BulkRequestItemAbstractEntity {
 
     @ManyToOne(cascade = CascadeType.ALL)

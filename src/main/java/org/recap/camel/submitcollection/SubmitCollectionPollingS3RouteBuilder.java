@@ -3,6 +3,7 @@ package org.recap.camel.submitcollection;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
@@ -18,8 +19,6 @@ import org.recap.camel.submitcollection.processor.SubmitCollectionProcessor;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.recap.util.PropertyUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -35,10 +34,11 @@ import java.util.List;
 /**
  * Created by premkb on 19/3/17.
  */
+
+@Slf4j
 @Component
 public class SubmitCollectionPollingS3RouteBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmitCollectionPollingS3RouteBuilder.class);
 
     @Autowired
     ProducerTemplate producer;
@@ -107,7 +107,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                 }
             });
         } catch (Exception e) {
-            logger.info("Exception occurred while instantiating submit collection route definitions : {}", e.getMessage());
+            log.info("Exception occurred while instantiating submit collection route definitions : {}", e.getMessage());
         }
     }
 
@@ -148,7 +148,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
 
             for (S3ObjectSummary os : objectListing.getObjectSummaries()) {
                 getObjectContentToDrive(os.getKey(), currentInstitution, cgdType);
-                logger.info("File with the key --> {} Size --> {} Last Modified -->{} " , os.getKey() , os.getSize() , os.getLastModified());
+                log.info("File with the key --> {} Size --> {} Last Modified -->{} " , os.getKey() , os.getSize() , os.getLastModified());
             }
 
             camelContext.addRoutes(new RouteBuilder() {
@@ -190,7 +190,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
             });
 
         } catch (Exception e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, e.getMessage());
+            log.error(ScsbCommonConstants.LOG_ERROR, e.getMessage());
         }
     }
 
@@ -204,7 +204,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                 IOUtils.copy(inputStream, new FileOutputStream(new File(submitCollectionLocalWorkingDir + currentInstitution + ScsbCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + ScsbCommonConstants.PATH_SEPARATOR + finalFileName)));
             }
         } catch (Exception e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, e.getMessage());
+            log.error(ScsbCommonConstants.LOG_ERROR, e.getMessage());
         }
     }
 
@@ -218,7 +218,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                     camelContext.getRouteController().startRoute(nextInstitutionRouteId);
                 }
             } catch (Exception e) {
-                logger.info("Exception occured while starting next route : {}", e.getMessage());
+                log.info("Exception occured while starting next route : {}", e.getMessage());
                 exchange.setException(e);
             }
         });
@@ -226,7 +226,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
     }
 
     public void removeRoutesForSubmitCollection() throws Exception {
-        logger.info(" Total routes before removing : {}", camelContext.getRoutesSize());
+        log.info(" Total routes before removing : {}", camelContext.getRoutesSize());
         List<String> protectedAndNotProtected = Arrays.asList(ScsbConstants.PROTECTED, ScsbConstants.NOT_PROTECTED);
         List<String> allInstitutionCodesExceptSupportInstitution = commonUtil.findAllInstitutionCodesExceptSupportInstitution();
         for (String institution : allInstitutionCodesExceptSupportInstitution) {
@@ -240,7 +240,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                 }
             }
         }
-        logger.info(" Total routes after removing : {}", camelContext.getRoutesSize());
+        log.info(" Total routes after removing : {}", camelContext.getRoutesSize());
     }
 
     public void clearDirectory(String institutionCode, String cgdType) {
@@ -248,7 +248,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
         try {
             FileUtils.cleanDirectory(destDirFile);
         } catch (IOException e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, e.getMessage());
+            log.error(ScsbCommonConstants.LOG_ERROR, e.getMessage());
         }
     }
 }

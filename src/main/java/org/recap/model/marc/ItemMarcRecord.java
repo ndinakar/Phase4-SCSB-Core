@@ -1,14 +1,12 @@
 package org.recap.model.marc;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.marc4j.marc.Record;
 
 /**
  * Created by chenchulakshmig on 14/10/16.
  */
-@Setter
-@Getter
+@Data
 public class ItemMarcRecord {
     /**
      * The Item record.

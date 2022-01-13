@@ -1,5 +1,6 @@
 package org.recap.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
@@ -8,8 +9,6 @@ import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.SubmitCollectionPollingS3RouteBuilder;
 import org.recap.util.CommonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,11 +20,11 @@ import java.util.Optional;
 /**
  * Created by harikrishnanv on 20/6/17.
  */
+@Slf4j
 @RestController
 @RequestMapping("/submitCollectionJob")
 public class SubmitCollectionJobController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmitCollectionJobController.class);
 
     @Autowired
     private CamelContext camelContext;
@@ -54,19 +53,19 @@ public class SubmitCollectionJobController {
         try {
             consumer = endpoint.createPollingConsumer();
             Exchange exchange = consumer.receive();
-            logger.info("Message Received : {}", exchange.getIn().getBody());
+            log.info("Message Received : {}", exchange.getIn().getBody());
             Thread.sleep(500);
             submitCollectionPollingFtpRouteBuilder.removeRoutesForSubmitCollection();
         }
         catch (Exception e){
-            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
         }
         finally {
             if(consumer != null) {
                 consumer.close();
             }
         }
-        logger.info("Submit Collection Job ends");
+        log.info("Submit Collection Job ends");
         return ScsbCommonConstants.SUCCESS;
     }
 }

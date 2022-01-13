@@ -1,5 +1,6 @@
 package org.recap.service.purge;
 
+import lombok.extern.slf4j.Slf4j;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
@@ -7,8 +8,6 @@ import org.recap.model.jpa.RequestTypeEntity;
 import org.recap.repository.jpa.AccessionDetailsRepository;
 import org.recap.repository.jpa.RequestItemDetailsRepository;
 import org.recap.repository.jpa.RequestTypeDetailsRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,10 +21,11 @@ import java.util.Map;
 /**
  * Created by hemalathas on 13/4/17.
  */
+@Slf4j
 @Service
 public class PurgeService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PurgeService.class);
+
 
     @Value("${" + PropertyKeyConstants.PURGE_EMAIL_ADDRESS_EDD_REQUEST_DAY_LIMIT + "}")
     private Integer purgeEmailEddRequestDayLimit;
@@ -72,7 +72,7 @@ public class PurgeService {
             responseMap.put(ScsbCommonConstants.PURGE_EDD_REQUEST, String.valueOf(noOfUpdatedRecordsForEddRequest));
             responseMap.put(ScsbCommonConstants.PURGE_PHYSICAL_REQUEST, String.valueOf(noOfUpdatedRecordsForPhysicalRequest));
         } catch (Exception exception) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, exception);
+            log.error(ScsbCommonConstants.LOG_ERROR, exception);
             responseMap.put(ScsbCommonConstants.STATUS, ScsbCommonConstants.FAILURE);
             responseMap.put(ScsbCommonConstants.MESSAGE, exception.getMessage());
         }
@@ -88,11 +88,11 @@ public class PurgeService {
         Map<String, String> responseMap = new HashMap<>();
         try {
             Integer countOfPurgedExceptionRequests = requestItemDetailsRepository.purgeExceptionRequests(ScsbConstants.REQUEST_STATUS_EXCEPTION, new Date(), purgeExceptionRequestDayLimit);
-            logger.info("Total number of exception requests purged : {}", countOfPurgedExceptionRequests);
+            log.info("Total number of exception requests purged : {}", countOfPurgedExceptionRequests);
             responseMap.put(ScsbCommonConstants.STATUS, ScsbCommonConstants.SUCCESS);
             responseMap.put(ScsbCommonConstants.MESSAGE, ScsbConstants.COUNT_OF_PURGED_EXCEPTION_REQUESTS + " : " + countOfPurgedExceptionRequests);
         } catch (Exception exception) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, exception);
+            log.error(ScsbCommonConstants.LOG_ERROR, exception);
             responseMap.put(ScsbCommonConstants.STATUS, ScsbCommonConstants.FAILURE);
             responseMap.put(ScsbCommonConstants.MESSAGE, exception.getMessage());
         }
@@ -108,11 +108,11 @@ public class PurgeService {
         Map<String, String> responseMap = new HashMap<>();
         try {
             Integer countOfPurgedAccessionRequests = accessionDetailsRepository.purgeAccessionRequests(ScsbConstants.COMPLETE, new Date(), purgeAccessionRequestDayLimit);
-            logger.info("Total number of accession requests purged : {}", countOfPurgedAccessionRequests);
+            log.info("Total number of accession requests purged : {}", countOfPurgedAccessionRequests);
             responseMap.put(ScsbCommonConstants.STATUS, ScsbCommonConstants.SUCCESS);
             responseMap.put(ScsbCommonConstants.MESSAGE, ScsbConstants.COUNT_OF_PURGED_ACCESSION_REQUESTS + " : " + countOfPurgedAccessionRequests);
         } catch (Exception exception) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, exception);
+            log.error(ScsbCommonConstants.LOG_ERROR, exception);
             responseMap.put(ScsbCommonConstants.STATUS, ScsbCommonConstants.FAILURE);
             responseMap.put(ScsbCommonConstants.MESSAGE, exception.getMessage());
         }

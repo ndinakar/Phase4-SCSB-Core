@@ -1,13 +1,12 @@
 package org.recap.model.submitcollection;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 /**
  * Created by premkb on 24/5/17.
  */
-@Setter
-@Getter
+@Data
 public class SubmitCollectionResponse {
 
     private String itemBarcode;

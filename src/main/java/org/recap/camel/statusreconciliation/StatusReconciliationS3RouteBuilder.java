@@ -1,5 +1,6 @@
 package org.recap.camel.statusreconciliation;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws.s3.S3Constants;
@@ -10,8 +11,6 @@ import org.recap.ScsbCommonConstants;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
 import org.recap.model.csv.StatusReconciliationErrorCSVRecord;
 import org.recap.service.statusreconciliation.StatusReconciliationEmailService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -20,10 +19,10 @@ import org.springframework.stereotype.Component;
 /**
  * Created by hemalathas on 22/5/17.
  */
+
+@Slf4j
 @Component
 public class StatusReconciliationS3RouteBuilder {
-
-    private static final Logger logger = LoggerFactory.getLogger(StatusReconciliationS3RouteBuilder.class);
 
     /**
      * Instantiates a new Status reconciliation s3 route builder.
@@ -69,7 +68,7 @@ public class StatusReconciliationS3RouteBuilder {
                 });
             }
         } catch (Exception e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
         }
     }
 }

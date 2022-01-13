@@ -1,5 +1,6 @@
 package org.recap.service.submitcollection;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections4.ListUtils;
 import org.marc4j.marc.Record;
@@ -18,8 +19,6 @@ import org.recap.model.submitcollection.BoundWithBibliographicEntityObject;
 import org.recap.model.submitcollection.NonBoundWithBibliographicEntityObject;
 import org.recap.service.common.RepositoryService;
 import org.recap.util.CommonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,10 +33,11 @@ import java.util.stream.Collectors;
 /**
  * Created by premkb on 10/10/17.
  */
+@Slf4j
 @Service
 public class SubmitCollectionBatchService extends SubmitCollectionService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmitCollectionBatchService.class);
+
 
     @Autowired
     private SubmitCollectionReportHelperService submitCollectionReportHelperService;
@@ -57,7 +57,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
     @Override
     public String processMarc(String inputRecords, Set<Integer> processedBibIds, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, boolean checkLimit
             , boolean isCGDProtection, InstitutionEntity institutionEntity, Set<String> updatedDummyRecordOwnInstBibIdSet, ExecutorService executorService, List<Future> futures) {
-        logger.info("inside SubmitCollectionBatchService");
+        log.info("inside SubmitCollectionBatchService");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String format = ScsbConstants.FORMAT_MARC;
@@ -69,10 +69,10 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
                 BibliographicEntity bibliographicEntity = prepareBibliographicEntity(record, format, submitCollectionReportInfoMap, idMapToRemoveIndexList, isCGDProtection, institutionEntity);
                 validBibliographicEntityList.add(bibliographicEntity);
             }
-            logger.info("Total incoming marc records for processing--->{}", recordList.size());
+            log.info("Total incoming marc records for processing--->{}", recordList.size());
             processConvertedBibliographicEntityFromIncomingRecords(processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, institutionEntity, updatedDummyRecordOwnInstBibIdSet, validBibliographicEntityList, executorService, futures);
             stopWatch.stop();
-            logger.info("Total time take for processMarc--->{}", stopWatch.getTotalTimeSeconds());
+            log.info("Total time take for processMarc--->{}", stopWatch.getTotalTimeSeconds());
             return null;
         } else {
             return invalidMessage;
@@ -90,9 +90,9 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         Map<String, List<BibliographicEntity>> groupByBarcodeBibliographicEntityListMap = groupByBarcodeBibliographicEntityListMap(boundwithBibliographicEntityList);//Added to avoid data discrepancy during multithreading
         List<NonBoundWithBibliographicEntityObject> nonBoundWithBibliographicEntityObjectList = prepareNonBoundWithBibliographicEntity(groupByOwnInstBibIdBibliographicEntityListMap);
         List<BoundWithBibliographicEntityObject> boundWithBibliographicEntityObjectList = prepareBoundWithBibliographicEntityObjectList(groupByBarcodeBibliographicEntityListMap);
-        logger.info("boundwithBibliographicEntityList size--->{}", boundwithBibliographicEntityList.size());
-        logger.info("boundWithBibliographicEntityObjectList size--->{}", boundWithBibliographicEntityObjectList.size());
-        logger.info("nonBoundWithBibliographicEntityList size--->{}", nonBoundWithBibliographicEntityList.size());
+        log.info("boundwithBibliographicEntityList size--->{}", boundwithBibliographicEntityList.size());
+        log.info("boundWithBibliographicEntityObjectList size--->{}", boundWithBibliographicEntityObjectList.size());
+        log.info("nonBoundWithBibliographicEntityList size--->{}", nonBoundWithBibliographicEntityList.size());
         if (!nonBoundWithBibliographicEntityObjectList.isEmpty()) {
             processRecordsInBatchesForNonBoundWith(nonBoundWithBibliographicEntityObjectList, institutionEntity.getId(), submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, executorService, futures);
         }
@@ -152,13 +152,13 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         BibRecords bibRecords = null;
         try {
             bibRecords = commonUtil.extractBibRecords(inputRecords);
-            logger.info("bibrecord size {}", bibRecords.getBibRecordList().size());
+            log.info("bibrecord size {}", bibRecords.getBibRecordList().size());
             if (checkLimit && bibRecords.getBibRecordList().size() > inputLimit) {
                 return ScsbConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE + " " + inputLimit;
             }
         } catch (JAXBException e) {
-            logger.info(String.valueOf(e.getCause()));
-            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            log.info(String.valueOf(e.getCause()));
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
             return ScsbConstants.INVALID_SCSB_XML_FORMAT_MESSAGE;
         }
 
@@ -167,10 +167,10 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
             BibliographicEntity bibliographicEntity = prepareBibliographicEntity(bibRecord, format, submitCollectionReportInfoMap, idMapToRemoveIndexList, isCGDProtected, institutionEntity);
             validBibliographicEntityList.add(bibliographicEntity);
         }
-        logger.info("Total incoming scsb records for processing--->{}", bibRecords.getBibRecordList().size());
+        log.info("Total incoming scsb records for processing--->{}", bibRecords.getBibRecordList().size());
         processConvertedBibliographicEntityFromIncomingRecords(processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, institutionEntity, updatedDummyRecordOwnInstBibIdSet, validBibliographicEntityList, executorService, futures);
         stopWatch.stop();
-        logger.info("Total time take for process SCSB--->{}", stopWatch.getTotalTimeSeconds());
+        log.info("Total time take for process SCSB--->{}", stopWatch.getTotalTimeSeconds());
         return null;
     }
 
@@ -230,18 +230,18 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
                 }
             } else {//Invalid bibliographic entity is added to the failure report
                 if (errorMessage != null && errorMessage.length() > 0) {
-                    logger.error("Error while parsing xml for a barcode in submit collection - {} for Owning Institution Bib Id - {}", errorMessage, incomingBibliographicEntity != null ? incomingBibliographicEntity.getOwningInstitutionBibId() : "");
+                    log.error("Error while parsing xml for a barcode in submit collection - {} for Owning Institution Bib Id - {}", errorMessage, incomingBibliographicEntity != null ? incomingBibliographicEntity.getOwningInstitutionBibId() : "");
                     submitCollectionReportHelperService.setSubmitCollectionFailureReportForUnexpectedException(incomingBibliographicEntity,
                             submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), "Failed record - Item not updated - " + errorMessage.toString(), institutionEntity);
                 } else {
-                    logger.error("Error while parsing xml for a barcode in submit collection - for Owning Institution Bib Id - {}", incomingBibliographicEntity != null ? incomingBibliographicEntity.getOwningInstitutionBibId() : "");                    submitCollectionReportHelperService.setSubmitCollectionFailureReportForUnexpectedException(incomingBibliographicEntity,
+                    log.error("Error while parsing xml for a barcode in submit collection - for Owning Institution Bib Id - {}", incomingBibliographicEntity != null ? incomingBibliographicEntity.getOwningInstitutionBibId() : "");                    submitCollectionReportHelperService.setSubmitCollectionFailureReportForUnexpectedException(incomingBibliographicEntity,
                             submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), "Failed record - Item not updated - ", institutionEntity);
 
                 }
             }
         } catch (Exception e) {
-            logger.error("Exception while preparing bibliographic entity");
-            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            log.error("Exception while preparing bibliographic entity");
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
         }
         return incomingBibliographicEntity;
     }
@@ -250,14 +250,14 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
             List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, Set<Integer> processedBibIds, List<Map<String, String>> idMapToRemoveIndexList, ExecutorService executorService, List<Future> futures) {
         Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
         List<List<NonBoundWithBibliographicEntityObject>> nonBoundWithBibliographicEntityPartitionList = ListUtils.partition(nonBoundWithBibliographicEntityObjectList, partitionSize);
-        logger.info("Total non bound-with batch count--->{}", nonBoundWithBibliographicEntityPartitionList.size());
+        log.info("Total non bound-with batch count--->{}", nonBoundWithBibliographicEntityPartitionList.size());
         List<BibliographicEntity> updatedBibliographicEntityToSaveList = new ArrayList<>();
         int batchCounter = 1;
         for (List<NonBoundWithBibliographicEntityObject> nonBoundWithBibliographicEntityObjectListToProces : nonBoundWithBibliographicEntityPartitionList) {
-            logger.info("nonBoundWithBibliographicEntityObjectListToProces.size---->{}", nonBoundWithBibliographicEntityObjectListToProces.size());
+            log.info("nonBoundWithBibliographicEntityObjectListToProces.size---->{}", nonBoundWithBibliographicEntityObjectListToProces.size());
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
-            logger.info("Processing non bound-with batch no. ---->{}", batchCounter);
+            log.info("Processing non bound-with batch no. ---->{}", batchCounter);
             List<BibliographicEntity> updatedBibliographicEntityList = null;
             updatedBibliographicEntityList = getSubmitCollectionDAOService().updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectListToProces
                     , owningInstitutionId, submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, processedBarcodeSetForDummyRecords, executorService, futures);
@@ -265,7 +265,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
                 updatedBibliographicEntityToSaveList.addAll(updatedBibliographicEntityList);
             }
             stopWatch.stop();
-            logger.info("Time taken to process and save {} non bound-with records batch--->{}", partitionSize, stopWatch.getTotalTimeSeconds());
+            log.info("Time taken to process and save {} non bound-with records batch--->{}", partitionSize, stopWatch.getTotalTimeSeconds());
             batchCounter++;
         }
     }
@@ -276,14 +276,14 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
 
         Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
         List<List<BoundWithBibliographicEntityObject>> boundWithBibliographicEntityObjectPartitionList = ListUtils.partition(boundWithBibliographicEntityObjectList, partitionSize);
-        logger.info("Total bound-with batch count--->{}", boundWithBibliographicEntityObjectPartitionList.size());
+        log.info("Total bound-with batch count--->{}", boundWithBibliographicEntityObjectPartitionList.size());
         List<BibliographicEntity> updatedBibliographicEntityToSaveList = new ArrayList<>();
         int batchCounter = 1;
         for (List<BoundWithBibliographicEntityObject> boundWithBibliographicEntityObjectToProcess : boundWithBibliographicEntityObjectPartitionList) {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
-            logger.info("boundWithBibliographicEntityObjectToProcess.size---->{}", boundWithBibliographicEntityObjectToProcess.size());
-            logger.info("Processing bound-with batch no. ---->{}", batchCounter);
+            log.info("boundWithBibliographicEntityObjectToProcess.size---->{}", boundWithBibliographicEntityObjectToProcess.size());
+            log.info("Processing bound-with batch no. ---->{}", batchCounter);
             List<BibliographicEntity> updatedBibliographicEntityList = null;
             updatedBibliographicEntityList = getSubmitCollectionDAOService().updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectToProcess, owningInstitutionId, submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, processedBarcodeSetForDummyRecords, executorService, futures);
             if (updatedBibliographicEntityList != null && !updatedBibliographicEntityList.isEmpty()) {
@@ -291,8 +291,8 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
             }
             setUpdatedDummyRecordOwningInstBibId(updatedBibliographicEntityList, updatedDummyRecordOwnInstBibIdSet);
             stopWatch.stop();
-            logger.info("Time taken to process and save {} bound-with records batch--->{}", partitionSize, stopWatch.getTotalTimeSeconds());
-            logger.info("Total updatedDummyRecordOwnInstBibIdSet size--->{}", updatedDummyRecordOwnInstBibIdSet.size());
+            log.info("Time taken to process and save {} bound-with records batch--->{}", partitionSize, stopWatch.getTotalTimeSeconds());
+            log.info("Total updatedDummyRecordOwnInstBibIdSet size--->{}", updatedDummyRecordOwnInstBibIdSet.size());
             batchCounter++;
         }
     }

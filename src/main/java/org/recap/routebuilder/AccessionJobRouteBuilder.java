@@ -1,5 +1,6 @@
 package org.recap.routebuilder;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -8,8 +9,6 @@ import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.service.accession.AccessionJobProcessor;
 import org.recap.controller.SharedCollectionRestController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -17,10 +16,11 @@ import org.springframework.stereotype.Component;
 /**
  * Created by rajeshbabuk on 21/8/17.
  */
+@Slf4j
 @Component
 public class AccessionJobRouteBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessionJobRouteBuilder.class);
+
 
     /**
      * Instantiates a new Accession job route builder.
@@ -46,14 +46,14 @@ public class AccessionJobRouteBuilder {
                                     String jobId = null;
                                     try {
                                         jobId = (String) exchange.getIn().getBody();
-                                        logger.info("Accession Job initiated for Job Id : {}", jobId);
+                                        log.info("Accession Job initiated for Job Id : {}", jobId);
                                         String accessionJobStatus = sharedCollectionRestController.ongoingAccessionJob(exchange);
 
-                                        logger.info("Job Id : {} Accession Job Status : {}", jobId, accessionJobStatus);
+                                        log.info("Job Id : {} Accession Job Status : {}", jobId, accessionJobStatus);
                                         exchange.getIn().setBody("JobId:" + jobId + "|" + accessionJobStatus);
                                     } catch (Exception ex) {
                                         exchange.getIn().setBody("JobId:" + jobId + "|" + ex.getMessage());
-                                        logger.info(ScsbCommonConstants.LOG_ERROR, ex);
+                                        log.info(ScsbCommonConstants.LOG_ERROR, ex);
                                     }
                                 }
                             })
@@ -74,7 +74,7 @@ public class AccessionJobRouteBuilder {
                 }
             });
         } catch (Exception ex) {
-            logger.error(ScsbConstants.EXCEPTION, ex);
+            log.error(ScsbConstants.EXCEPTION, ex);
         }
     }
 }

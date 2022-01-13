@@ -1,7 +1,7 @@
 package org.recap.model.jpa;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 import org.apache.commons.lang3.StringUtils;
 import org.recap.ScsbCommonConstants;
@@ -19,9 +19,8 @@ import java.util.List;
 /**
  * Created by pvsubrah on 6/11/16.
  */
+@Data
 @Entity
-@Getter
-@Setter
 @Table(name = "item_t", catalog = "")
 @AttributeOverride(name = "id", column = @Column(name = "ITEM_ID"))
 public class ItemEntity extends ItemAbstractEntity {

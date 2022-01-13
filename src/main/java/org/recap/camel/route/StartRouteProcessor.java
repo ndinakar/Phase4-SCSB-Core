@@ -1,18 +1,17 @@
 package org.recap.camel.route;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 
 /**
  * Created by akulak on 19/7/17.
  */
+@Slf4j
 @Scope("prototype")
 public class StartRouteProcessor implements Processor {
 
-    private static final Logger log= LoggerFactory.getLogger(StartRouteProcessor.class);
 
     private String routeId;
 

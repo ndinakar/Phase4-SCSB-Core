@@ -1,5 +1,6 @@
 package org.recap.service.accession;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Record;
@@ -10,19 +11,16 @@ import org.recap.model.accession.AccessionResponse;
 import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.model.jpa.ReportDataEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+@Slf4j
 @Service
 public class MarcFormatResolver extends AccessionResolverAbstract {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarcFormatResolver.class);
 
     @Override
     public boolean isFormat(String format) {
@@ -67,7 +65,7 @@ public class MarcFormatResolver extends AccessionResolverAbstract {
             reportDataEntityList.addAll(accessionUtil.createReportDataEntityList(accessionRequest, response));
         }
         stopWatch.stop();
-        logger.info("Total time taken to save records for accession : {}", stopWatch.getTotalTimeSeconds());
+        log.info("Total time taken to save records for accession : {}", stopWatch.getTotalTimeSeconds());
         return response;
     }
 

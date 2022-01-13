@@ -1,6 +1,7 @@
 package org.recap.util;
 
 import info.freelibrary.marc4j.impl.ControlFieldImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.MarcReader;
@@ -19,8 +20,6 @@ import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.marc.BibMarcRecord;
 import org.recap.model.marc.HoldingsMarcRecord;
 import org.recap.model.marc.ItemMarcRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -37,10 +36,11 @@ import java.util.Map;
 /**
  * Created by pvsubrah on 6/15/16.
  */
+@Slf4j
 @Service
 public class MarcUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarcUtil.class);
+
 
     @Value("${" + PropertyKeyConstants.SUBMIT_COLLECTION_INPUT_LIMIT + "}")
     private Integer inputLimit;
@@ -548,8 +548,8 @@ public class MarcUtil {
                 return ScsbConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE + inputLimit;
             }
         } catch (Exception e) {
-            logger.info(String.valueOf(e.getCause()));
-            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            log.info(String.valueOf(e.getCause()));
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
             return ScsbConstants.INVALID_MARC_XML_FORMAT_MESSAGE;
         }
         return null;

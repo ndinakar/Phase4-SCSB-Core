@@ -1,13 +1,11 @@
 package org.recap.model.jpa;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * Created by rajeshbabuk on 10/10/17.
  */
-@Setter
-@Getter
+@Data
 public class BulkRequestResponse {
 
     private String screenMessage;

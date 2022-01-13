@@ -2,6 +2,7 @@
 package org.recap.service.submitcollection;
 
 import junit.framework.TestCase;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.junit.Test;
 import org.marc4j.MarcReader;
@@ -53,10 +54,8 @@ import static org.mockito.ArgumentMatchers.*;
 /**
  * Created by premkb on 20/12/16.
  */
-
+@Slf4j
 public class SubmitCollectionServiceUT extends BaseTestCaseUT {
-
-    private static final Logger logger = LoggerFactory.getLogger(SubmitCollectionServiceUT.class);
 
     @InjectMocks
     SubmitCollectionService submitCollectionService;
@@ -883,7 +882,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         HoldingsEntity holdingsEntity = savedBibliographicEntity.getHoldingsEntities().get(0);
         String updatedHoldingMarcXML = new String(holdingsEntity.getContent(),StandardCharsets.UTF_8);
         List<Record> holdingRecordList = readMarcXml(updatedHoldingMarcXML);
-        logger.info("updatedHoldingMarcXML-->"+updatedHoldingMarcXML);
+        log.info("updatedHoldingMarcXML-->"+updatedHoldingMarcXML);
         TestCase.assertNotNull(holdingRecordList);
         DataField field852 = (DataField)holdingRecordList.get(0).getVariableField("852");
         assertEquals("K25.xN6", field852.getSubfield('h').getData());
@@ -1454,7 +1453,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         while (reader.hasNext()) {
             Record record = reader.next();
             recordList.add(record);
-            logger.info(record.toString());
+            log.info(record.toString());
         }
         return recordList;
     }
