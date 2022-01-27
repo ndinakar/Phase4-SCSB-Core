@@ -1,5 +1,7 @@
 package org.recap.converter;
 
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.recap.PropertyKeyConstants;
@@ -20,15 +22,12 @@ import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
+@Slf4j
 @Service
 public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbstract {
-    private static final Logger logger = LoggerFactory.getLogger(AccessionSCSBToBibEntityConverter.class);
 
     /**
      * This method is used to convert scsb record into bib entity
@@ -71,7 +70,7 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
                     if (holdings.getHolding()!=null) {
                         holdingList = holdings.getHolding();
                     } else {
-                        logger.error(String.format("holding is empty---%s",bibRecord.getBib().getOwningInstitutionBibId()));
+                        log.error(String.format("holding is empty---%s",bibRecord.getBib().getOwningInstitutionBibId()));
                     }
                     for(Holding holding:holdingList){
                         if (holding.getContent() != null) {
@@ -153,7 +152,7 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
             map.put(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE,reasonForFailureItem);
             map.put(ScsbConstants.INCOMPLETE_RESPONSE,incompleteResponse);
         } catch (Exception e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            log.error(ScsbCommonConstants.LOG_ERROR,e);
             errorMessage.append(e.getMessage());
         }
 

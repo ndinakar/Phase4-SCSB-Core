@@ -1,8 +1,8 @@
 package org.recap.consumer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -20,9 +20,9 @@ import javax.jms.Topic;
 /**
  * Created by sudhishk on 17/1/17.
  */
+@Slf4j
 public class JMSConsumer implements MessageListener {
 
-    private final static Logger logger = LoggerFactory.getLogger(JMSConsumer.class);
 
     private static String topicName = "PUL.RequestT";
     private static String queueName = "lasOutgoingQ";
@@ -44,7 +44,7 @@ public class JMSConsumer implements MessageListener {
         messageConsumer.setMessageListener(new JMSConsumer());
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
-        logger.info("Press enter to quit application");
+        log.info("Press enter to quit application");
 
         stdin.readLine();
         connection.close();
@@ -61,7 +61,7 @@ public class JMSConsumer implements MessageListener {
         messageConsumer.setMessageListener(new JMSConsumer());
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
-        logger.info("Press enter to quit application");
+        log.info("Press enter to quit application");
 
         stdin.readLine();
         connection.close();
@@ -71,9 +71,9 @@ public class JMSConsumer implements MessageListener {
     public void onMessage(Message message) {
         try {
             TextMessage textMessage = (TextMessage) message;
-            logger.info("Message is " + textMessage.getText());
+            log.info("Message is " + textMessage.getText());
         } catch (JMSException e) {
-            logger.error("JMSException", e);
+            log.error("JMSException", e);
         }
     }
 

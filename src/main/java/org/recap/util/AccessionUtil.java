@@ -1,5 +1,6 @@
 package org.recap.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,8 +33,6 @@ import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.accession.AccessionValidationService;
 import org.recap.service.accession.DummyDataService;
 import org.recap.service.common.SetupDataService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -47,11 +46,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+@Slf4j
 @Service
 public class AccessionUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessionUtil.class);
+
 
     @Autowired
     private PropertyUtil propertyUtil;
@@ -260,7 +259,7 @@ public class AccessionUtil {
                 owningInstitution = ownerCodeEntity.getInstitutionEntity().getInstitutionCode();
             }
         } catch (Exception e) {
-            logger.error(ScsbConstants.EXCEPTION,e);
+            log.error(ScsbConstants.EXCEPTION,e);
         }
         return owningInstitution;
     }
@@ -338,7 +337,7 @@ public class AccessionUtil {
                     institutionEntityMap.put(institutionEntity.getInstitutionCode(), institutionEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(ScsbConstants.EXCEPTION,e);
+                log.error(ScsbConstants.EXCEPTION,e);
             }
         }
         return institutionEntityMap;
@@ -429,9 +428,9 @@ public class AccessionUtil {
             List<HoldingsEntity> fetchHoldingsEntities =fetchBibliographicEntity.getHoldingsEntities();
             List<HoldingsEntity> holdingsEntities = bibliographicEntity.getHoldingsEntities();
 
-            logger.info("Owning Inst Bib Id :  = {}",bibliographicEntity.getOwningInstitutionBibId());
-            logger.info("Fetched Item Entities = {}",fetchHoldingsEntities.size());
-            logger.info("Incoming Item Entities = {}",holdingsEntities.size());
+            log.info("Owning Inst Bib Id :  = {}",bibliographicEntity.getOwningInstitutionBibId());
+            log.info("Fetched Item Entities = {}",fetchHoldingsEntities.size());
+            log.info("Incoming Item Entities = {}",holdingsEntities.size());
 
             for (Iterator<HoldingsEntity> iholdings = holdingsEntities.iterator(); iholdings.hasNext();) {
                 HoldingsEntity holdingsEntity = iholdings.next();
@@ -459,15 +458,15 @@ public class AccessionUtil {
                 }
             }
             fetchHoldingsEntities.addAll(holdingsEntities);
-            logger.info("Holding Final Count = {}",fetchHoldingsEntities.size());
+            log.info("Holding Final Count = {}",fetchHoldingsEntities.size());
 
 
             // Item
             List<ItemEntity> fetchItemsEntities =fetchBibliographicEntity.getItemEntities();
             List<ItemEntity> incomingItemsEntities = bibliographicEntity.getItemEntities();
 
-            logger.info("Fetched Item Entities = {}",CollectionUtils.isNotEmpty(fetchItemsEntities) ? fetchItemsEntities.size() : 0);
-            logger.info("Incoming Item Entities = {}",CollectionUtils.isNotEmpty(incomingItemsEntities) ? incomingItemsEntities.size() : 0);
+            log.info("Fetched Item Entities = {}",CollectionUtils.isNotEmpty(fetchItemsEntities) ? fetchItemsEntities.size() : 0);
+            log.info("Incoming Item Entities = {}",CollectionUtils.isNotEmpty(incomingItemsEntities) ? incomingItemsEntities.size() : 0);
 
             List<ItemEntity> finalItemEntities = new ArrayList<>();
 
@@ -475,7 +474,7 @@ public class AccessionUtil {
                 finalItemEntities.addAll(holdingsEntity.getItemEntities());
             }
 
-            logger.info("Item Final Count = {}",finalItemEntities.size());
+            log.info("Item Final Count = {}",finalItemEntities.size());
 
             fetchBibliographicEntity.setHoldingsEntities(fetchHoldingsEntities);
             fetchBibliographicEntity.setItemEntities(finalItemEntities);
@@ -505,7 +504,7 @@ public class AccessionUtil {
         try {
             return bibliographicRepositoryDAO.saveOrUpdate(fetchBibliographicEntity);
         } catch (Exception e) {
-            logger.info(ScsbConstants.EXCEPTION,e);
+            log.info(ScsbConstants.EXCEPTION,e);
         }
         return null;
     }
@@ -590,7 +589,7 @@ public class AccessionUtil {
             itemDetailsRepository.saveAll(itemEntityList);
             itemDetailsRepository.flush();
         } catch (Exception e) {
-            logger.error(ScsbConstants.EXCEPTION,e);
+            log.error(ScsbConstants.EXCEPTION,e);
             return ScsbCommonConstants.FAILURE;
         }
         return ScsbCommonConstants.SUCCESS;
@@ -610,7 +609,7 @@ public class AccessionUtil {
                 }
             }
         } catch (Exception e) {
-            logger.error(ScsbConstants.EXCEPTION,e);
+            log.error(ScsbConstants.EXCEPTION,e);
             return ScsbCommonConstants.FAILURE;
         }
         return ScsbCommonConstants.SUCCESS;

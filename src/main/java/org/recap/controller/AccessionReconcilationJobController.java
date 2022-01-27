@@ -1,5 +1,6 @@
 package org.recap.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
@@ -7,8 +8,6 @@ import org.recap.ScsbConstants;
 import org.recap.camel.accessionreconciliation.BarcodeReconciliationRouteBuilder;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.util.CommonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -21,11 +20,11 @@ import java.util.List;
 /**
  * Created by akulak on 24/5/17.
  */
+
+@Slf4j
 @RestController
 @RequestMapping("/accessionReconciliation")
 public class AccessionReconcilationJobController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AccessionReconcilationJobController.class);
 
     @Autowired
     private CommonUtil commonUtil;
@@ -57,8 +56,8 @@ public class AccessionReconcilationJobController {
      */
     @PostMapping(value = "/startAccessionReconciliation")
     public String startAccessionReconciliation() throws Exception {
-        logger.info("Before accession reconciliation process : {}", camelContext.getRoutes().size());
-        logger.info("Starting Accession Reconciliation Routes");
+        log.info("Before accession reconciliation process : {}", camelContext.getRoutes().size());
+        log.info("Starting Accession Reconciliation Routes");
         List<String> imsLocationCodesExceptUN = imsLocationDetailsRepository.findAllImsLocationCodeExceptUN();
         List<String> allInstitutionCodesExceptSupportInstitution = commonUtil.findAllInstitutionCodesExceptSupportInstitution();
         for (String imsLocation : imsLocationCodesExceptUN) {
@@ -72,7 +71,7 @@ public class AccessionReconcilationJobController {
                 camelContext.getRouteController().startRoute(imsLocation + institution + ScsbConstants.ACCESSION_RECONCILIATION_S3_ROUTE_ID);
             }
         }
-        logger.info("After accession reconciliation process : {}", camelContext.getRoutes().size());
+        log.info("After accession reconciliation process : {}", camelContext.getRoutes().size());
         return ScsbCommonConstants.SUCCESS;
     }
 }

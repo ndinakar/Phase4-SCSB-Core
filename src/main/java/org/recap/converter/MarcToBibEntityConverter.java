@@ -1,5 +1,6 @@
 package org.recap.converter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -25,8 +26,6 @@ import org.recap.util.CommonUtil;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
 import org.recap.util.PropertyUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -38,10 +37,10 @@ import java.util.Map;
 /**
  * Created by chenchulakshmig on 17/10/16.
  */
+@Slf4j
 @Service
 public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterface{
 
-    private static final Logger logger = LoggerFactory.getLogger(MarcToBibEntityConverter.class);
 
     @Autowired
     private MarcUtil marcUtil;
@@ -139,7 +138,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
                 map.put(ScsbConstants.BIBLIOGRAPHIC_ENTITY, bibliographicEntity);
             }
         } catch (Exception e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            log.error(ScsbCommonConstants.LOG_ERROR,e);
             errorMessage.append(e.getMessage());
         }
         map.put("errorMessage",errorMessage);

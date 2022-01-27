@@ -1,15 +1,14 @@
 package org.recap.camel;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 import java.io.Serializable;
 
 /**
  * Created by chenchulakshmig on 15/9/16.
  */
-@Getter
-@Setter
+@Data
 public class EmailPayLoad implements Serializable{
 
     private String to;

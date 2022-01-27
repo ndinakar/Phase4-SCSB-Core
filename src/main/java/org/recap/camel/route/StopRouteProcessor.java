@@ -1,16 +1,18 @@
 package org.recap.camel.route;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.slf4j.Logger;
 import org.recap.ScsbCommonConstants;
-import org.slf4j.LoggerFactory;
+
 
 /**
  * The type Stop route processor.
  */
+
+@Slf4j
 public class StopRouteProcessor implements Processor {
-    private static final Logger logger = LoggerFactory.getLogger(StopRouteProcessor.class);
+
     private String routeId;
 
     /**
@@ -30,10 +32,10 @@ public class StopRouteProcessor implements Processor {
             public void run() {
                 try {
                     stopRouteWithTimeOutOption();
-                    logger.info("Stop Route {}" , routeId);
+                    log.info("Stop Route {}" , routeId);
                 } catch (Exception e) {
-                    logger.error("Exception while stop route : {}" , routeId);
-                    logger.error(ScsbCommonConstants.LOG_ERROR , e);
+                    log.error("Exception while stop route : {}" , routeId);
+                    log.error(ScsbCommonConstants.LOG_ERROR , e);
                 }
             }
 

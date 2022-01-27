@@ -3,6 +3,7 @@ package org.recap.service.accession;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections.CollectionUtils;
 import org.recap.PropertyKeyConstants;
@@ -16,8 +17,6 @@ import org.recap.model.jpa.AccessionEntity;
 import org.recap.model.jpa.ReportDataEntity;
 import org.recap.repository.jpa.AccessionDetailsRepository;
 import org.recap.service.accession.callable.BibDataCallable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -40,11 +39,12 @@ import java.util.stream.Collectors;
 /**
  * Created by sheiks on 26/05/17.
  */
+@Slf4j
 @Service
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class BulkAccessionService extends AccessionService{
 
-    private static final Logger logger = LoggerFactory.getLogger(BulkAccessionService.class);
+
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -80,7 +80,7 @@ public class BulkAccessionService extends AccessionService{
             accessionDetailsRepository.save(accessionEntity);
             status = ScsbConstants.ACCESSION_SAVE_SUCCESS_STATUS;
         } catch (Exception ex) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, ex);
+            log.error(ScsbCommonConstants.LOG_ERROR, ex);
             status = ScsbConstants.ACCESSION_SAVE_FAILURE_STATUS + ScsbCommonConstants.EXCEPTION_MSG + " : " + ex.getMessage();
         }
         return status;
@@ -108,7 +108,7 @@ public class BulkAccessionService extends AccessionService{
             try {
                 accessionModelRequestList.forEach(accessionModelRequest -> accessionRequestList.addAll(accessionModelRequest.getAccessionRequests()));
             } catch(Exception e) {
-                logger.error(ScsbCommonConstants.LOG_ERROR, e);
+                log.error(ScsbCommonConstants.LOG_ERROR, e);
             }
         }
         return accessionRequestList;
@@ -145,7 +145,7 @@ public class BulkAccessionService extends AccessionService{
                 List<AccessionRequest> failedRequests = new ArrayList<>();
                 for (Iterator<AccessionRequest> accessionRequestIterator = accessionRequests.iterator(); accessionRequestIterator.hasNext(); ) {
                     AccessionRequest accessionRequest = accessionRequestIterator.next();
-                    logger.info("Processing accession for item barcode----->{}", accessionRequest.getItemBarcode());
+                    log.info("Processing accession for item barcode----->{}", accessionRequest.getItemBarcode());
                     // validate empty barcode ,customer code and owning institution
                     String itemBarcode = accessionRequest.getItemBarcode();
                     String customerCode = accessionRequest.getCustomerCode();
@@ -179,7 +179,7 @@ public class BulkAccessionService extends AccessionService{
                         }
 
                     } catch (Exception e) {
-                        logger.error(ScsbCommonConstants.LOG_ERROR, e);
+                        log.error(ScsbCommonConstants.LOG_ERROR, e);
                         exhange.setException(e);
                     }
                 }
@@ -198,7 +198,7 @@ public class BulkAccessionService extends AccessionService{
                         Object o = submit.get();
                         prepareSummary(accessionSummary, o);
                     } catch (Exception e) {
-                        logger.error(ScsbCommonConstants.LOG_ERROR, e);
+                        log.error(ScsbCommonConstants.LOG_ERROR, e);
                         exhange.setException(e);
                         accessionSummary.addException(1);
                     }
@@ -218,7 +218,7 @@ public class BulkAccessionService extends AccessionService{
         }
         executorService.shutdown();
         stopWatch.stop();
-        logger.info("Total time taken to accession for all barcode -> {} sec",stopWatch.getTotalTimeSeconds());
+        log.info("Total time taken to accession for all barcode -> {} sec",stopWatch.getTotalTimeSeconds());
         return null;
     }
 
@@ -234,7 +234,7 @@ public class BulkAccessionService extends AccessionService{
         try {
             strJson = objectMapper.writeValueAsString(objJson);
         } catch (JsonProcessingException ex) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, ex);
+            log.error(ScsbCommonConstants.LOG_ERROR, ex);
         }
         return strJson;
     }

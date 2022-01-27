@@ -1,11 +1,10 @@
 package org.recap.service.accession;
 
+import lombok.extern.slf4j.Slf4j;
 import org.recap.ScsbConstants;
 import org.recap.model.ILSConfigProperties;
 import org.recap.service.authorization.OauthTokenApiService;
 import org.recap.util.PropertyUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -15,11 +14,11 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
+@Slf4j
 @Service
 public class OAuthRestCallForBibdata extends BibDataAbstract{
 
-    private static final Logger logger = LoggerFactory.getLogger(OAuthRestCallForBibdata.class);
+
 
     @Autowired
     PropertyUtil propertyUtil;
@@ -47,7 +46,7 @@ public class OAuthRestCallForBibdata extends BibDataAbstract{
         String bibDataResponse;
         String response;
         try {
-            logger.info("BIBDATA URL = {}",url);
+            log.info("BIBDATA URL = {}",url);
             Map<String, String> params = getParamsMap(itemBarcode, customerCode);
 
             RestTemplate restTmp = getRestTmp();
@@ -61,7 +60,7 @@ public class OAuthRestCallForBibdata extends BibDataAbstract{
 
         } catch (Exception e) {
             response = String.format("[%s : %s] %s. (%s : %s)", itemBarcode, customerCode, ScsbConstants.ITEM_BARCODE_NOT_FOUND, url, e.getMessage());
-            logger.error(response);
+            log.error(response);
             throw new RuntimeException(response);
         }
         return bibDataResponse;

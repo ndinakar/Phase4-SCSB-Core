@@ -1,7 +1,6 @@
 package org.recap.service.accession.callable;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
 import org.recap.model.jpa.ImsLocationEntity;
@@ -17,10 +16,9 @@ import java.util.concurrent.Callable;
 /**
  * Created by sheiks on 26/05/17.
  */
+@Data
 @Component
 @Scope("prototype")
-@Getter
-@Setter
 public class BibDataCallable implements Callable{
   
     @Autowired

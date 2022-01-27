@@ -1,10 +1,9 @@
 package org.recap.service.accession;
 
+import lombok.extern.slf4j.Slf4j;
 import org.recap.ScsbConstants;
 import org.recap.service.partnerservice.NullHostnameVerifier;
 import org.recap.service.partnerservice.SCSBSimpleClientHttpRequestFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -15,10 +14,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class SimpleRestCallForBibdata extends BibDataAbstract{
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleRestCallForBibdata.class);
+
 
     public RestTemplate getRestTemplate(){
         return new RestTemplate();
@@ -38,7 +38,7 @@ public class SimpleRestCallForBibdata extends BibDataAbstract{
         String bibDataResponse;
         String response;
         try {
-            logger.info("BIBDATA URL = {}" , url);
+            log.info("BIBDATA URL = {}" , url);
             Map<String, String> params = getParamsMap(itemBarcode);
             RestTemplate restTmp = getRestTmp();
             HttpEntity requestEntity = new HttpEntity(getHttpHeaders());
@@ -46,7 +46,7 @@ public class SimpleRestCallForBibdata extends BibDataAbstract{
             bibDataResponse = responseEntity.getBody();
         } catch (Exception e) {
             response = String.format("[%s] %s. (%s : %s)", itemBarcode, ScsbConstants.ITEM_BARCODE_NOT_FOUND, url, e.getMessage());
-            logger.error(response);
+            log.error(response);
             throw new RuntimeException(response);
         }
         return bibDataResponse;

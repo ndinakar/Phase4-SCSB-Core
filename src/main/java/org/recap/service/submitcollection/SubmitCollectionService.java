@@ -1,5 +1,6 @@
 package org.recap.service.submitcollection;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +26,6 @@ import org.recap.model.submitcollection.SubmitCollectionResponse;
 import org.recap.service.common.RepositoryService;
 import org.recap.util.CommonUtil;
 import org.recap.util.MarcUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -45,10 +44,11 @@ import java.util.concurrent.Future;
 /**
  * Created by premkb on 20/12/16.
  */
+@Slf4j
 @Service
 public class SubmitCollectionService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmitCollectionService.class);
+
 
     @Autowired
     private RepositoryService repositoryService;
@@ -102,7 +102,7 @@ public class SubmitCollectionService {
     @Transactional
     public List<SubmitCollectionResponse> process(String institutionCode, String inputRecords, Set<Integer> processedBibIds, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, String xmlFileName, List<Integer> reportRecordNumberList, boolean checkLimit
             , boolean isCGDProtected, Set<String> updatedDummyRecordOwnInstBibIdSet, Exchange exchange, ExecutorService executorService, List<Future> futures) {
-        logger.info("Submit Collection : Input record processing started");
+        log.info("Submit Collection : Input record processing started");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String response = null;
@@ -132,7 +132,7 @@ public class SubmitCollectionService {
                     getResponseMessage(submitCollectionReportInfoMap,submitCollectionResponseList);
                 }
             }catch (Exception e) {
-                logger.error(ScsbCommonConstants.LOG_ERROR, e);
+                log.error(ScsbCommonConstants.LOG_ERROR, e);
                 response = ScsbConstants.SUBMIT_COLLECTION_INTERNAL_ERROR;
                 if(exchange != null){
                     exchange.setException(e);
@@ -140,7 +140,7 @@ public class SubmitCollectionService {
             }
             setResponse(response, submitCollectionResponseList);
             stopWatch.stop();
-            logger.info("Submit Collection : total time take for processing input record and saving to DB {}", stopWatch.getTotalTimeSeconds());
+            log.info("Submit Collection : total time take for processing input record and saving to DB {}", stopWatch.getTotalTimeSeconds());
         } else {
             SubmitCollectionResponse submitCollectionResponse = new SubmitCollectionResponse();
             submitCollectionResponse.setItemBarcode("");
@@ -189,7 +189,7 @@ public class SubmitCollectionService {
                 }
             }
             stopWatch.stop();
-            logger.info("Total time take {}", stopWatch.getTotalTimeSeconds());
+            log.info("Total time take {}", stopWatch.getTotalTimeSeconds());
             return null;
         } else {
             return invalidMessage;
@@ -210,30 +210,30 @@ public class SubmitCollectionService {
                 return ScsbConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE + " " + inputLimit;
             }
         } catch (JAXBException e) {
-            logger.info(String.valueOf(e.getCause()));
-            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            log.info(String.valueOf(e.getCause()));
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
             return ScsbConstants.INVALID_SCSB_XML_FORMAT_MESSAGE;
         }
         int count = 1;
         Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
         for (BibRecord bibRecord : bibRecords.getBibRecordList()) {
-            logger.info("Processing Bib record no: {}",count);
+            log.info("Processing Bib record no: {}",count);
             try {
                 BibliographicEntity bibliographicEntity = loadData(bibRecord, format, submitCollectionReportInfoMap, idMapToRemoveIndexList,isCGDProtected,institutionEntity,processedBarcodeSetForDummyRecords, executorService, futures);
                 if (null!=bibliographicEntity && null != bibliographicEntity.getId()) {
                     processedBibIds.add(bibliographicEntity.getId());
                 }
             } catch (MarcException me) {
-                logger.error(ScsbCommonConstants.LOG_ERROR,me);
+                log.error(ScsbCommonConstants.LOG_ERROR,me);
                 return ScsbConstants.INVALID_MARC_XML_FORMAT_IN_SCSBXML_MESSAGE;
             } catch (ResourceAccessException rae){
-                logger.error(ScsbCommonConstants.LOG_ERROR,rae);
+                log.error(ScsbCommonConstants.LOG_ERROR,rae);
                 return ScsbCommonConstants.SCSB_SOLR_CLIENT_SERVICE_UNAVAILABLE;
             }
-            logger.info("Process completed for Bib record no: {}",count);
+            log.info("Process completed for Bib record no: {}",count);
             count ++;
         }
-        logger.info("Total time take {}",stopWatch.getTotalTimeSeconds());
+        log.info("Total time take {}",stopWatch.getTotalTimeSeconds());
         return null;
     }
 
@@ -252,12 +252,12 @@ public class SubmitCollectionService {
                 }
             } else {
                 if (errorMessage != null && errorMessage.length()>0) {
-                    logger.error("Error while parsing xml for a barcode in submit collection");
+                    log.error("Error while parsing xml for a barcode in submit collection");
                     getSubmitCollectionReportHelperService().setSubmitCollectionFailureReportForUnexpectedException(bibliographicEntity,
                             submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST),"Failed record - Item not updated - "+errorMessage.toString(),institutionEntity);
                 }
                 else {
-                    logger.error("Error while parsing xml for a barcode in submit collection");
+                    log.error("Error while parsing xml for a barcode in submit collection");
                     getSubmitCollectionReportHelperService().setSubmitCollectionFailureReportForUnexpectedException(bibliographicEntity,
                             submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST),"Failed record - Item not updated - ",institutionEntity);
                 }
@@ -266,7 +266,7 @@ public class SubmitCollectionService {
         } catch (Exception e) {
             getSubmitCollectionReportHelperService().setSubmitCollectionFailureReportForUnexpectedException(bibliographicEntity,
                     submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST),"Failed record - Item not updated - "+e.getMessage(),institutionEntity);
-            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            log.error(ScsbCommonConstants.LOG_ERROR,e);
         }
         return savedBibliographicEntity;
     }
@@ -329,7 +329,7 @@ public class SubmitCollectionService {
     public void removeSolrIndex(List<Map<String,String> >idMapToRemoveIndexList) {
         if (CollectionUtils.isNotEmpty(idMapToRemoveIndexList)) {
             String bibDocsSolrDeleteStatus = getRestTemplate().postForObject(scsbSolrClientUrl + "solrIndexer/deleteByBibHoldingItemId", idMapToRemoveIndexList, String.class);
-            logger.info("Bib documents solr deleted status : {}", bibDocsSolrDeleteStatus);
+            log.info("Bib documents solr deleted status : {}", bibDocsSolrDeleteStatus);
         }
     }
 
@@ -341,7 +341,7 @@ public class SubmitCollectionService {
     public void removeBibFromSolrIndex(List<Map<String,String>> bibIdMapToRemoveIndexList) {
         if (CollectionUtils.isNotEmpty(bibIdMapToRemoveIndexList)) {
             String bibSolrDeleteStatus = getRestTemplate().postForObject(scsbSolrClientUrl + "solrIndexer/deleteByBibIdAndIsDeletedFlag", bibIdMapToRemoveIndexList, String.class);
-            logger.info("Bib document solr deleted status : {}", bibSolrDeleteStatus);
+            log.info("Bib document solr deleted status : {}", bibSolrDeleteStatus);
         }
     }
 
@@ -415,7 +415,7 @@ public class SubmitCollectionService {
                     }
                 }
             } catch (Exception e) {
-                logger.error(ScsbCommonConstants.LOG_ERROR,e);
+                log.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
     }

@@ -1,14 +1,13 @@
 package org.recap.model.jpa;
 
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 /**
  * Created by hemalathas on 1/11/16.
  */
-@Setter
-@Getter
+@Data
 public class ItemResponseInformation {
 
     private String patronBarcode;

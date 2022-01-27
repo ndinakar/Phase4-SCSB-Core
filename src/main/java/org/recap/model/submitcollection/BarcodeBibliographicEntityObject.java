@@ -1,7 +1,7 @@
 package org.recap.model.submitcollection;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 import org.recap.model.jpa.BibliographicEntity;
 
 import java.util.Objects;
@@ -9,8 +9,7 @@ import java.util.Objects;
 /**
  * Created by premkb on 14/10/17.
  */
-@Setter
-@Getter
+@Data
 public class BarcodeBibliographicEntityObject {
 
     private String barcode;
