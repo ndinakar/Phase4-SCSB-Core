@@ -5,7 +5,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.recap.model.jpa.*;
 import org.recap.repository.jpa.RequestItemDetailsRepository;
 import org.recap.repository.jpa.RequestItemStatusDetailsRepository;
@@ -13,6 +12,7 @@ import org.recap.repository.jpa.RequestTypeDetailsRepository;
 import org.recap.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by akulak on 20/9/17.
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 public class EncryptEmailAddressUT {
 
    @InjectMocks
@@ -41,19 +41,19 @@ public class EncryptEmailAddressUT {
 
     public static final String REQUEST_ID = "requestId";
 
-    @Autowired
+    @Mock
     RequestTypeDetailsRepository requestTypeDetailsRepository;
 
-    @Autowired
+    @Mock
     RequestItemStatusDetailsRepository requestItemStatusDetailsRepository;
 
-    @Autowired
+    @Mock
     RequestItemDetailsRepository requestItemDetailsRepository;
 
-    @Autowired
+    @Mock
     EncryptEmailAddressService encryptEmailAddressService;
 
-    @Autowired
+    @Mock
     SecurityUtil securityUtil;
 
 
