@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 public class TestUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestUtil.class);
-
     private TestUtil() {}
 
 

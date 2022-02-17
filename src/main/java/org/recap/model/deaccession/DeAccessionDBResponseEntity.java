@@ -1,15 +1,14 @@
 package org.recap.model.deaccession;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 import java.util.List;
 
 /**
  * Created by chenchulakshmig on 3/10/16.
  */
-@Setter
-@Getter
+@Data
 public class DeAccessionDBResponseEntity {
 
     private String barcode;

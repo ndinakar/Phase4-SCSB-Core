@@ -1,8 +1,8 @@
 package org.recap.camel.dailyreconciliation;
 
 import com.amazonaws.services.s3.AmazonS3;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.commons.lang3.StringUtils;
@@ -29,8 +29,6 @@ import org.recap.repository.jpa.ItemDetailsRepository;
 import org.recap.repository.jpa.RequestItemDetailsRepository;
 import org.recap.util.PropertyUtil;
 import org.recap.util.SecurityUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -47,13 +45,13 @@ import java.util.Optional;
 /**
  * The type Daily reconcilation processor.
  */
-@Getter
-@Setter
+
+@Slf4j
+@Data
 @Service
 @Scope("prototype")
 public class DailyReconciliationProcessor {
 
-    private static Logger logger = LoggerFactory.getLogger(DailyReconciliationProcessor.class);
 
     @Autowired
     private ItemDetailsRepository itemDetailsRepository;
@@ -98,7 +96,7 @@ public class DailyReconciliationProcessor {
                 imsAvailableCodes = imsAvailableCodes + "," + queueableCodes;
             }
             String xmlFileName = exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY).toString();
-            logger.info("{} LAS File Processing: {}", imsLocationCode, xmlFileName);
+            log.info("{} LAS File Processing: {}", imsLocationCode, xmlFileName);
             List<DailyReconcilationRecord> dailyReconcilationRecordList = null;
             if (exchange.getIn().getBody() instanceof DailyReconcilationRecord) {
                 dailyReconcilationRecordList = new ArrayList<>();
@@ -112,7 +110,7 @@ public class DailyReconciliationProcessor {
                 setColumnWidthForSheet(lasSheet);
                 CellStyle cellStyle = xssfWorkbook.createCellStyle();
                 cellStyle.setAlignment(HorizontalAlignment.LEFT);
-                logger.info("started creating las sheet for : {}", imsLocationCode);
+                log.info("started creating las sheet for : {}", imsLocationCode);
                 for (DailyReconcilationRecord dailyReconcilationRecord : dailyReconcilationRecordList) {
                     XSSFRow row = lasSheet.createRow(i);
                     createCellForEqualRow(row, xssfWorkbook, dailyReconcilationRecord.getCustomerCode(), cellStyle, dailyReconcilationRecord.getRequestId(), 0, dailyReconcilationRecord.getBarcode(), 1, 2, dailyReconcilationRecord.getStopCode(), 3, dailyReconcilationRecord.getPatronId(), 4, dailyReconcilationRecord.getCreateDate(), 5);
@@ -120,27 +118,27 @@ public class DailyReconciliationProcessor {
                     createCell(xssfWorkbook, row,cellStyle, dailyReconcilationRecord.getErrorNote(), 12);
                     i++;                         
                 }
-                logger.info("completed creating las sheet for : {}", imsLocationCode);
+                log.info("completed creating las sheet for : {}", imsLocationCode);
                 Sheet readLasSheet = xssfWorkbook.getSheetAt(0);
                 XSSFSheet scsbSheet = xssfWorkbook.createSheet(ScsbConstants.DAILY_RR_SCSB);
                 xssfWorkbook.setSheetOrder(ScsbConstants.DAILY_RR_SCSB, 1);
                 createHeader(scsbSheet);
                 XSSFCellStyle dateCellStyle = getXssfCellStyleForDate(xssfWorkbook);
-                logger.info("started creating scsb sheet");
+                log.info("started creating scsb sheet");
                 for (int j = 1; j <= readLasSheet.getLastRowNum(); j++) {
                     readValuesFromLasSheet(xssfWorkbook, readLasSheet, scsbSheet, dateCellStyle, j);
                 }
-                logger.info("completed creating scsb sheet");
+                log.info("completed creating scsb sheet");
                 compareLasAndScsbSheets(xssfWorkbook,cellStyle);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(ScsbConstants.DAILY_RR_FILE_DATE_FORMAT);
-                logger.info("File Path: {}, Ims : {}", filePath, imsLocationCode);
+                log.info("File Path: {}, Ims : {}", filePath, imsLocationCode);
                 FileOutputStream fileOutputStream = new FileOutputStream(filePath + "/" + imsLocationCode + "/" + ScsbConstants.DAILY_RR + simpleDateFormat.format(new Date()) + ".xlsx");
                 xssfWorkbook.write(fileOutputStream);
                 fileOutputStream.flush();
                 fileOutputStream.close();
-                logger.info("total number of sheets created {}",xssfWorkbook.getNumberOfSheets());
+                log.info("total number of sheets created {}",xssfWorkbook.getNumberOfSheets());
                 camelContext.getRouteController().startRoute(ScsbConstants.DAILY_RR_FS_ROUTE_ID + imsLocationCode);
-                logger.info("started {}", ScsbConstants.DAILY_RR_FS_ROUTE_ID + imsLocationCode);
+                log.info("started {}", ScsbConstants.DAILY_RR_FS_ROUTE_ID + imsLocationCode);
                 String bucketName = exchange.getIn().getHeader("CamelAwsS3BucketName").toString();
                 if (awsS3Client.doesObjectExist(bucketName, xmlFileName)) {
                     String basepath = xmlFileName.substring(0, xmlFileName.lastIndexOf('/'));
@@ -149,10 +147,10 @@ public class DailyReconciliationProcessor {
                     awsS3Client.deleteObject(bucketName, xmlFileName);
                 }
             }
-            logger.info("{} LAS File Processed: {}",imsLocationCode, xmlFileName);
+            log.info("{} LAS File Processed: {}",imsLocationCode, xmlFileName);
         }
         catch (Exception e){
-            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
         }
 
     }
@@ -301,14 +299,14 @@ public class DailyReconciliationProcessor {
      * @param xssfWorkbook the xssf workbook
      */
     public void compareLasAndScsbSheets(XSSFWorkbook xssfWorkbook,CellStyle cellStyle) {
-            logger.info("started comparing las and scsb sheets");
+            log.info("started comparing las and scsb sheets");
             XSSFSheet sheet1 = xssfWorkbook.getSheetAt(0);
             XSSFSheet sheet2 = xssfWorkbook.getSheetAt(1);
             XSSFSheet sheet3 = xssfWorkbook.createSheet(ScsbConstants.DAILY_RR_COMPARISON);
             xssfWorkbook.setSheetOrder(ScsbConstants.DAILY_RR_COMPARISON,2);
             createHeaderForCompareSheet(sheet3);
             compareTwoSheets(sheet1, sheet2, sheet3,xssfWorkbook,cellStyle);
-            logger.info("completed comparing las and scsb sheets");
+            log.info("completed comparing las and scsb sheets");
     }
 
     /**
@@ -323,7 +321,7 @@ public class DailyReconciliationProcessor {
         int firstRow1 = 1;
         int lastRow1 = sheet1.getLastRowNum();
         int createRowSheet3 = 2;
-        logger.info("started row wise comparison");
+        log.info("started row wise comparison");
         for (int i = firstRow1; i <= lastRow1; i++) {
             XSSFRow row1 = sheet1.getRow(i);
             XSSFRow row2 = sheet2.getRow(i);
@@ -331,7 +329,7 @@ public class DailyReconciliationProcessor {
             createRowSheet3++;
             compareTwoRows(row1, row2, row3,xssfWorkbook,cellStyle);
         }
-        logger.info("completed row wise comparison");
+        log.info("completed row wise comparison");
     }
 
     /**
@@ -487,6 +485,6 @@ public class DailyReconciliationProcessor {
         xssfSheet.setColumnWidth(4, 4000);
         xssfSheet.setColumnWidth(5, 5000);
         xssfSheet.setColumnWidth(6, 7000);
-        logger.info("created headers for comparison sheets");
+        log.info("created headers for comparison sheets");
     }
 }

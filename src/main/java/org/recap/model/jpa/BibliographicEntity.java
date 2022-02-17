@@ -1,7 +1,6 @@
 package org.recap.model.jpa;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
@@ -18,8 +17,7 @@ import java.util.List;
 /**
  * Created by pvsubrah on 6/10/16.
  */
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "bibliographic_t", catalog = "")
 @AttributeOverride(name = "id", column = @Column(name = "BIBLIOGRAPHIC_ID"))

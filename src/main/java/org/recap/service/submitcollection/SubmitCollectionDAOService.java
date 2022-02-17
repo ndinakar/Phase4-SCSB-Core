@@ -1,5 +1,6 @@
 package org.recap.service.submitcollection;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.recap.PropertyKeyConstants;
@@ -49,10 +50,11 @@ import java.util.stream.Collectors;
 /**
  * Created by premkb on 11/6/17.
  */
+@Slf4j
 @Service
 public class SubmitCollectionDAOService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmitCollectionDAOService.class);
+
     @Autowired
     private RepositoryService repositoryService;
 
@@ -174,8 +176,8 @@ public class SubmitCollectionDAOService {
         prepareExceptionReport(incomingItemBarcodeList,fetchedItemBarcodeList,incomingBarcodeItemEntityMapFromBibliographicEntityList,submitCollectionReportInfoMap);
         stopWatch.stop();
         saveUpdatedBibliographicEntityListAndItemChangeLogList(updatedBibliographicEntityList,itemChangeLogEntityList);
-        logger.info("Total bibs to update in the current batch--->{}", updatedBibliographicEntityList.size());
-        logger.info("Time taken to update in batches----->{}", stopWatch.getTotalTimeSeconds());
+        log.info("Total bibs to update in the current batch--->{}", updatedBibliographicEntityList.size());
+        log.info("Time taken to update in batches----->{}", stopWatch.getTotalTimeSeconds());
         return updatedBibliographicEntityList;
     }
 
@@ -215,10 +217,10 @@ public class SubmitCollectionDAOService {
                 if (isNoOfIncomingBibsOfAnItemMatchesExistingBibsOfAnItemMatched) {//Bib counts are equal - Same number of bib for incoming and existing records
                     iterateAndUpdateBoundWithItems(submitCollectionReportInfoMap, processedBibIds, fetchedBarcodeItemEntityMap, updatedBibliographicEntityList, itemChangeLogEntityList, boundWithBibliographicEntityObject, executorService, futures);
                 } else if (singleVolumeToBoundWith || boundWithBibIncreased){//Incoming bib count is > existing bib count - New bibs are added in the Incoming
-                    logger.info("Processing incoming barcode {} have additional bib count compared to the existing bib count",barcode);
+                    log.info("Processing incoming barcode {} have additional bib count compared to the existing bib count",barcode);
                     addNewBibToExistingItem(submitCollectionReportInfoMap, processedBibIds,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, fetchedBarcodeItemEntityMap, updatedBibliographicEntityList, itemChangeLogEntityList, boundWithBibliographicEntityObject,executorService,futures);
                 } else if (reducedIncomingBibCount){//Incoming bib count is < existing bib count - Unlinking bibs from existing item and there are less no bibs in the incoming record
-                    logger.info("Processing incoming barcode {} have bib count less that the existing bib count",barcode);
+                    log.info("Processing incoming barcode {} have bib count less that the existing bib count",barcode);
                     removeBibFromExistingItem(submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, fetchedBarcodeItemEntityMap, updatedBibliographicEntityList, itemChangeLogEntityList, boundWithBibliographicEntityObject, executorService, futures);
                 }
             }
@@ -226,8 +228,8 @@ public class SubmitCollectionDAOService {
         prepareExceptionReport(incomingItemBarcodeList,fetchedItemBarcodeList,incomingBarcodeItemEntityMapFromBibliographicEntityList,submitCollectionReportInfoMap);
         stopWatch.stop();
         saveUpdatedBibliographicEntityListAndItemChangeLogList(updatedBibliographicEntityList,itemChangeLogEntityList);
-        logger.info("Total bibs to update in the current batch--->{}", updatedBibliographicEntityList.size());
-        logger.info("Time taken to update in batches----->{}", stopWatch.getTotalTimeSeconds());
+        log.info("Total bibs to update in the current batch--->{}", updatedBibliographicEntityList.size());
+        log.info("Time taken to update in batches----->{}", stopWatch.getTotalTimeSeconds());
         return updatedBibliographicEntityList;
     }
 
@@ -243,7 +245,7 @@ public class SubmitCollectionDAOService {
                                                 Map<String, ItemEntity> fetchedBarcodeItemEntityMap, List<BibliographicEntity> updatedBibliographicEntityList,
                                                 List<ItemChangeLogEntity> itemChangeLogEntityList, BoundWithBibliographicEntityObject boundWithBibliographicEntityObject,
                                                 ExecutorService executorService, List<Future> futures) {
-        logger.info("Processing items having bib count matched with the incoming and exisiting record");
+        log.info("Processing items having bib count matched with the incoming and exisiting record");
         boolean isValidRecordToProcess = submitCollectionValidationService.validateIncomingItemHavingBibCountIsSameAsExistingItem(submitCollectionReportInfoMap,fetchedBarcodeItemEntityMap,
                 boundWithBibliographicEntityObject.getBibliographicEntityList());
         if (isValidRecordToProcess) {
@@ -330,7 +332,7 @@ public class SubmitCollectionDAOService {
                             }
                             if (incomingBibliographicEntity.getItemEntities() != null) {
                                 if (incomingBibliographicEntity.getItemEntities().get(0).getCollectionGroupId() == null) {
-                                    logger.info("Existing Item Collection Group Id: {}", existingItemEntity.getCollectionGroupId());
+                                    log.info("Existing Item Collection Group Id: {}", existingItemEntity.getCollectionGroupId());
                                     incomingBibliographicEntity.getItemEntities().get(0).setCollectionGroupId(existingItemEntity.getCollectionGroupId());
                                 }
                             }
@@ -340,7 +342,7 @@ public class SubmitCollectionDAOService {
                                 bibIdMapToRemoveIndex.put(ScsbCommonConstants.BIB_ID, String.valueOf(existingBibliographicEntity.getId()));
                                 bibIdMapToRemoveIndex.put(ScsbCommonConstants.IS_DELETED_BIB, Boolean.toString(true));
                                 bibIdMapToRemoveIndexList.add(bibIdMapToRemoveIndex);
-                                logger.info("Added id to remove from solr - bib id - {}, is deleted bib - {}", existingBibliographicEntity.getId(), true);
+                                log.info("Added id to remove from solr - bib id - {}, is deleted bib - {}", existingBibliographicEntity.getId(), true);
                                 bibliographicDetailsRepository.updateBibForSubmitCollection(existingBibliographicEntity, fetchedItemEntity);
                                 entityManager.flush();
                                 entityManager.refresh(existingBibliographicEntity);
@@ -382,10 +384,10 @@ public class SubmitCollectionDAOService {
     private void setMAQualifierToBibByCGD(BibliographicEntity bibliographicEntity, String cgdCode) {
         if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(cgdCode)) {
             bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_3);
-            logger.info("Update MA Qualifier to {}, Collected Bib Ids: {}", ScsbCommonConstants.MA_QUALIFIER_3, bibliographicEntity.getId());
+            log.info("Update MA Qualifier to {}, Collected Bib Ids: {}", ScsbCommonConstants.MA_QUALIFIER_3, bibliographicEntity.getId());
         } else {
             bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
-            logger.info("Update MA Qualifier to {}, Collected Bib Ids: {}", ScsbCommonConstants.MA_QUALIFIER_1, bibliographicEntity.getId());
+            log.info("Update MA Qualifier to {}, Collected Bib Ids: {}", ScsbCommonConstants.MA_QUALIFIER_1, bibliographicEntity.getId());
         }
     }
 
@@ -420,7 +422,7 @@ public class SubmitCollectionDAOService {
                         }
                         Set<String> owningInstHoldingIdSet = fetchedItemEntity.getHoldingsEntities().stream().map(HoldingsEntity::getOwningInstitutionHoldingsId).collect(Collectors.toSet());
                         unlinkHoldingFromBib(fetchedBibliographicEntity, fetchedItemEntity.getId(), owningInstHoldingIdSet, idMapToRemoveIndexList);
-                        logger.info("Unlinked bib - owning institution bib id {} from item barcode {}",fetchedBibliographicEntity.getId(),barcode);
+                        log.info("Unlinked bib - owning institution bib id {} from item barcode {}",fetchedBibliographicEntity.getId(),barcode);
                         processedBibIds.add(fetchedBibliographicEntity.getId());
                     }
                 }
@@ -441,7 +443,7 @@ public class SubmitCollectionDAOService {
                 idMapToRemoveIndex.put(ScsbCommonConstants.ITEM_ID, String.valueOf(itemId));
                 idMapToRemoveIndex.put(ScsbCommonConstants.ROOT, fetchedBibliographicEntity.getOwningInstitutionId() + fetchedBibliographicEntity.getOwningInstitutionBibId());
                 idMapToRemoveIndexList.add(idMapToRemoveIndex);
-                logger.info("Added id to remove from solr - holding id - {}, item id - {}, root - {}", holdingsEntity.getId(), itemId, fetchedBibliographicEntity.getOwningInstitutionId() + fetchedBibliographicEntity.getOwningInstitutionBibId());
+                log.info("Added id to remove from solr - holding id - {}, item id - {}, root - {}", holdingsEntity.getId(), itemId, fetchedBibliographicEntity.getOwningInstitutionId() + fetchedBibliographicEntity.getOwningInstitutionBibId());
                 holdingsEntityIterator.remove();
             }
         }
@@ -455,20 +457,20 @@ public class SubmitCollectionDAOService {
                     saveItemChangeLogEntityList(itemChangeLogEntityList);
                 }
             } catch (Exception e) {
-                logger.error("Exception while saving non bound with batch ");
-                logger.error(ScsbCommonConstants.LOG_ERROR,e);
+                log.error("Exception while saving non bound with batch ");
+                log.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
     }
 
     private void saveUpdatedBibliographicEntityList(List<BibliographicEntity> updatedBibliographicEntityList){
-        logger.info("updatedBibliographicEntityList size--->{}",updatedBibliographicEntityList.size());
+        log.info("updatedBibliographicEntityList size--->{}",updatedBibliographicEntityList.size());
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntityList);
         repositoryService.getBibliographicDetailsRepository().flush();
         stopWatch.stop();
-        logger.info("Time taken to save {} bib size---->{} sec",updatedBibliographicEntityList.size(),stopWatch.getTotalTimeSeconds());
+        log.info("Time taken to save {} bib size---->{} sec",updatedBibliographicEntityList.size(),stopWatch.getTotalTimeSeconds());
     }
 
     private void saveItemChangeLogEntityList(List<ItemChangeLogEntity> itemChangeLogEntityList){
@@ -477,7 +479,7 @@ public class SubmitCollectionDAOService {
         repositoryService.getItemChangeLogDetailsRepository().saveAll(itemChangeLogEntityList);
         repositoryService.getItemChangeLogDetailsRepository().flush();
         itemChangeLogStopWatch.stop();
-        logger.info("Time taken to save item change log--->{}",itemChangeLogStopWatch.getTotalTimeSeconds());
+        log.info("Time taken to save item change log--->{}",itemChangeLogStopWatch.getTotalTimeSeconds());
         repositoryService.getItemChangeLogDetailsRepository().saveAll(itemChangeLogEntityList);
     }
 
@@ -760,13 +762,13 @@ public class SubmitCollectionDAOService {
     }
 
     private boolean checkIsCGDNotNull(BibliographicEntity incomingBibliographicEntity){
-        logger.info("item size--->{}",incomingBibliographicEntity.getItemEntities().size());
+        log.info("item size--->{}",incomingBibliographicEntity.getItemEntities().size());
         for(ItemEntity itemEntity:incomingBibliographicEntity.getItemEntities()){
             if(itemEntity.getCollectionGroupId() == null){
-                logger.info("item cgd is null");
+                log.info("item cgd is null");
                 return false;
             }
-            logger.info("item cgd is not null");
+            log.info("item cgd is not null");
         }
         return true;
     }
@@ -872,7 +874,7 @@ public class SubmitCollectionDAOService {
             return savedOrUnsavedBibliographicEntity;
         } catch (Exception e) {
             submitCollectionReportHelperService.setSubmitCollectionExceptionReportInfo(updatedItemEntityList,submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), ScsbConstants.SUBMIT_COLLECTION_FAILED_RECORD);
-            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            log.error(ScsbCommonConstants.LOG_ERROR,e);
             return null;
         }
     }
@@ -977,7 +979,7 @@ public class SubmitCollectionDAOService {
             return bibliographicEntityToSave;
         } catch (Exception e) {
             submitCollectionReportHelperService.setSubmitCollectionExceptionReportInfo(updatedItemEntityList,submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), ScsbConstants.SUBMIT_COLLECTION_FAILED_RECORD);
-            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            log.error(ScsbCommonConstants.LOG_ERROR,e);
             return null;
         }
     }
@@ -1227,9 +1229,9 @@ public class SubmitCollectionDAOService {
             idMapToRemoveIndex.put(ScsbCommonConstants.HOLDING_ID,String.valueOf(fetchBibliographicEntity.getHoldingsEntities().get(0).getId()));
             idMapToRemoveIndex.put(ScsbCommonConstants.ITEM_ID,String.valueOf(fetchBibliographicEntity.getItemEntities().get(0).getId()));
             idMapToRemoveIndexList.add(idMapToRemoveIndex);
-            logger.info("Added id to remove from solr - bib id - {}, holding id - {}, item id - {}",fetchBibliographicEntity.getId(),fetchBibliographicEntity.getHoldingsEntities().get(0).getId(),
+            log.info("Added id to remove from solr - bib id - {}, holding id - {}, item id - {}",fetchBibliographicEntity.getId(),fetchBibliographicEntity.getHoldingsEntities().get(0).getId(),
                     fetchBibliographicEntity.getItemEntities().get(0).getId());
-            logger.info("Delete dummy record - barcode - {}",fetchBibliographicEntity.getItemEntities().get(0).getBarcode());
+            log.info("Delete dummy record - barcode - {}",fetchBibliographicEntity.getItemEntities().get(0).getBarcode());
             repositoryService.getBibliographicDetailsRepository().delete(fetchBibliographicEntity);
             repositoryService.getBibliographicDetailsRepository().flush();
         }

@@ -1,5 +1,6 @@
 package org.recap.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.recap.PropertyKeyConstants;
@@ -15,8 +16,6 @@ import org.recap.repository.jpa.*;
 import org.recap.service.accession.AccessionInterface;
 import org.recap.service.accession.AccessionResolverFactory;
 import org.recap.spring.SwaggerAPIProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -32,11 +31,12 @@ import java.util.*;
 /**
  * Created by sheiks on 26/05/17.
  */
+@Slf4j
 @Service
 @EnableAsync
 public class AccessionProcessService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessionProcessService.class);
+
 
     @Autowired
     private ItemDetailsRepository itemDetailsRepository;
@@ -124,7 +124,7 @@ public class AccessionProcessService {
                         itemBarcodeHistoryDetailsRepository.save(itemBarcodeHistoryEntity);
                     }
                 } catch (Exception e) {
-                    logger.info("Exception occured in accession process : {}",e.getMessage());
+                    log.info("Exception occured in accession process : {}",e.getMessage());
                     if (writeToReport) {
                         processException(accessionResponses, accessionRequest, reportDataEntitys, owningInstitution,imsLocationEntity ,e);
                     } else {
@@ -152,7 +152,7 @@ public class AccessionProcessService {
             processException(accessionResponses, accessionRequest, reportDataEntitys, owningInstitution,imsLocationEntity, e);
         } finally {
             individualStopWatch.stop();
-            logger.info("Time taken to get bib data from {} ILS : {}", owningInstitution, individualStopWatch.getTotalTimeSeconds());
+            log.info("Time taken to get bib data from {} ILS : {}", owningInstitution, individualStopWatch.getTotalTimeSeconds());
         }
         return bibData;
     }
@@ -309,14 +309,14 @@ public class AccessionProcessService {
                                  List<ReportDataEntity> reportDataEntityList, String owningInstitution,ImsLocationEntity imsLocationEntity ,Exception ex) {
         String response = ex.getMessage();
         if (StringUtils.contains(response, ScsbConstants.ITEM_BARCODE_NOT_FOUND)) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, response);
+            log.error(ScsbCommonConstants.LOG_ERROR, response);
         } else if (StringUtils.contains(response, ScsbConstants.MARC_FORMAT_PARSER_ERROR)) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, response);
+            log.error(ScsbCommonConstants.LOG_ERROR, response);
             response = ScsbConstants.INVALID_MARC_XML_ERROR_MSG;
-            logger.error(ScsbConstants.EXCEPTION, ex);
+            log.error(ScsbConstants.EXCEPTION, ex);
         } else {
             response = ScsbConstants.EXCEPTION + response;
-            logger.error(ScsbConstants.EXCEPTION, ex);
+            log.error(ScsbConstants.EXCEPTION, ex);
         }
         //Create dummy record
         response = accessionUtil.createDummyRecordIfAny(response, owningInstitution, reportDataEntityList, accessionRequest,imsLocationEntity);
@@ -347,19 +347,19 @@ public class AccessionProcessService {
                 stopWatch.start();
                 ResponseEntity<ItemRefileResponse> responseEntity = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST, request, ItemRefileResponse.class);
                 stopWatch.stop();
-                logger.info("Time taken to refile item barcode {} is : {}", itemBarcode, stopWatch.getTotalTimeSeconds());
-                logger.info("Refile response for item barcode {} : {}", itemBarcode, null != responseEntity.getBody() ? responseEntity.getBody().getScreenMessage() : null);
+                log.info("Time taken to refile item barcode {} is : {}", itemBarcode, stopWatch.getTotalTimeSeconds());
+                log.info("Refile response for item barcode {} : {}", itemBarcode, null != responseEntity.getBody() ? responseEntity.getBody().getScreenMessage() : null);
             } else {
                 HttpEntity request = new HttpEntity<>(itemRequestInfo, getHttpHeadersAuth());
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
                 ResponseEntity<ItemCheckinResponse> responseEntity = restTemplate.exchange(scsbUrl + ScsbConstants.SERVICEPATH.CHECKIN_ITEM, HttpMethod.POST, request, ItemCheckinResponse.class);
                 stopWatch.stop();
-                logger.info("Time taken to checkin item barcode {} in {} : {}", itemBarcode, owningInstitutionId, stopWatch.getTotalTimeSeconds());
-                logger.info("Checkin response for item barcode {} : {}", itemBarcode, null != responseEntity.getBody() ? responseEntity.getBody().getScreenMessage() : null);
+                log.info("Time taken to checkin item barcode {} in {} : {}", itemBarcode, owningInstitutionId, stopWatch.getTotalTimeSeconds());
+                log.info("Checkin response for item barcode {} : {}", itemBarcode, null != responseEntity.getBody() ? responseEntity.getBody().getScreenMessage() : null);
             }
         } catch (Exception ex) {
-            logger.error(ScsbConstants.EXCEPTION, ex);
+            log.error(ScsbConstants.EXCEPTION, ex);
         }
     }
 
@@ -403,7 +403,7 @@ public class AccessionProcessService {
                     institutionEntityMap.put(institutionEntity.getInstitutionCode(), institutionEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(ScsbConstants.EXCEPTION,e);
+                log.error(ScsbConstants.EXCEPTION,e);
             }
         }
         return institutionEntityMap;

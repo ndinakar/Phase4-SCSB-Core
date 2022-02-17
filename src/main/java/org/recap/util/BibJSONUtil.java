@@ -1,13 +1,10 @@
 package org.recap.util;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Record;
 import org.recap.ScsbConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -19,17 +16,16 @@ import java.util.List;
 /**
  * Created by rajeshbabuk on 17/Sep/2021
  */
+@Data
 @Service
 public class BibJSONUtil extends MarcUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(BibJSONUtil.class);
 
-    @Getter
-    @Setter
+
+
     private List<String> nonHoldingInstitutions;
 
-    @Getter
-    @Setter
+
     private ProducerTemplate producerTemplate;
 
 

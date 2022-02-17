@@ -1,6 +1,7 @@
 package org.recap.controller;
 
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections.CollectionUtils;
 import org.recap.PropertyKeyConstants;
@@ -12,15 +13,12 @@ import org.recap.model.accession.AccessionResponse;
 import org.recap.model.accession.AccessionSummary;
 import org.recap.model.jpa.AccessionEntity;
 import org.recap.model.submitcollection.SubmitCollectionResponse;
-import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.service.accession.AccessionService;
 import org.recap.service.accession.BulkAccessionService;
 import org.recap.service.common.SetupDataService;
 import org.recap.service.submitcollection.SubmitCollectionBatchService;
 import org.recap.service.submitcollection.SubmitCollectionService;
 import org.recap.util.CommonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -38,11 +36,10 @@ import java.util.concurrent.Future;
 /**
  * Created by premkb on 21/12/16.
  */
+@Slf4j
 @RestController
 @RequestMapping("/sharedCollection")
 public class SharedCollectionRestController {
-
-    private static final Logger logger = LoggerFactory.getLogger(SharedCollectionRestController.class);
 
     @Autowired
     private SubmitCollectionService submitCollectionService;
@@ -93,14 +90,14 @@ public class SharedCollectionRestController {
             accessionResponsesList = getAccessionResponses();
             return new ResponseEntity<>(accessionResponsesList, getHttpHeaders(), HttpStatus.OK);
         } else {
-            logger.info("Total record for Accession : {}",accessionModelRequest.getAccessionRequests().size());
+            log.info("Total record for Accession : {}",accessionModelRequest.getAccessionRequests().size());
             AccessionSummary accessionSummary = new AccessionSummary(ScsbConstants.ACCESSION_SUMMARY);
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             accessionResponsesList = accessionService.doAccession(accessionModelRequest, accessionSummary,exchange);
             stopWatch.stop();
             accessionSummary.setTimeElapsed(stopWatch.getTotalTimeSeconds() + " Secs");
-            logger.info("{}", accessionSummary);
+            log.info("{}", accessionSummary);
             accessionService.createSummaryReport(accessionSummary.toString(), ScsbConstants.ACCESSION_SUMMARY);
             responseEntity = new ResponseEntity<>(accessionResponsesList, getHttpHeaders(), HttpStatus.OK);
         }
@@ -129,7 +126,7 @@ public class SharedCollectionRestController {
         });
         List<AccessionRequest> accessionRequestList = bulkAccessionService.getAccessionRequest(accessionModelRequestList);
         if (CollectionUtils.isNotEmpty(accessionRequestList)) {
-            logger.info("Total record for Bulk Accession : {}", accessionRequestList.size());
+            log.info("Total record for Bulk Accession : {}", accessionRequestList.size());
             accessionSummary.setRequestedRecords(accessionRequestList.size());
             bulkAccessionService.updateStatusForAccessionEntities(accessionEntities, ScsbConstants.PROCESSING);
             accessionModelRequestList.forEach(accessionModelRequest -> bulkAccessionService.doAccession(accessionModelRequest, accessionSummary, exchange));
@@ -141,8 +138,8 @@ public class SharedCollectionRestController {
         stopWatch.stop();
         accessionSummary.setTimeElapsed(stopWatch.getTotalTimeSeconds() + " Secs");
         bulkAccessionService.createSummaryReport(accessionSummary.toString(), ScsbConstants.BULK_ACCESSION_SUMMARY);
-        logger.info("Total time taken for processing {} records : {} secs", accessionRequestList.size(), stopWatch.getTotalTimeSeconds());
-        logger.info(accessionSummary.toString());
+        log.info("Total time taken for processing {} records : {} secs", accessionRequestList.size(), stopWatch.getTotalTimeSeconds());
+        log.info(accessionSummary.toString());
         return status;
     }
 
@@ -183,19 +180,19 @@ public class SharedCollectionRestController {
             List<Future> futures = new ArrayList<>();
             submitCollectionResponseList = submitCollectionBatchService.process(institution,inputRecords,processedBibIdSet,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,"",reportRecordNumberList, true,isCGDProtection,updatedBoundWithDummyRecordOwnInstBibIdSet, null, executorService, futures);
             if (!processedBibIdSet.isEmpty()) {
-                logger.info("Calling indexing service to update data");
+                log.info("Calling indexing service to update data");
                 submitCollectionService.indexData(processedBibIdSet);
             }
             if(!updatedBoundWithDummyRecordOwnInstBibIdSet.isEmpty()){
-                logger.info("Updated boudwith dummy record own inst bib id size-->{}",updatedBoundWithDummyRecordOwnInstBibIdSet.size());
+                log.info("Updated boudwith dummy record own inst bib id size-->{}",updatedBoundWithDummyRecordOwnInstBibIdSet.size());
                 submitCollectionService.indexDataUsingOwningInstBibId(new ArrayList<>(updatedBoundWithDummyRecordOwnInstBibIdSet),institutionId);
             }
             if (!idMapToRemoveIndexList.isEmpty() || !bibIdMapToRemoveIndexList.isEmpty()) {//remove the incomplete record from solr index
-                logger.info("Calling indexing to remove dummy records");
+                log.info("Calling indexing to remove dummy records");
                 new Thread(() -> {
                     submitCollectionService.removeBibFromSolrIndex(bibIdMapToRemoveIndexList);
                     submitCollectionService.removeSolrIndex(idMapToRemoveIndexList);
-                    logger.info("Removed dummy records from solr");
+                    log.info("Removed dummy records from solr");
                 }).start();
             }
             submitCollectionBatchService.generateSubmitCollectionReportFile(reportRecordNumberList);
@@ -203,14 +200,14 @@ public class SharedCollectionRestController {
             executorService.shutdown();
             responseEntity = new ResponseEntity(submitCollectionResponseList,getHttpHeaders(), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            log.error(ScsbCommonConstants.LOG_ERROR,e);
             responseEntity = new ResponseEntity(ScsbConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,getHttpHeaders(), HttpStatus.OK);
             if (executorService != null) {
                 executorService.shutdown();
             }
         }
         stopWatch.stop();
-        logger.info("Total time taken to process submit collection through rest api--->{} sec",stopWatch.getTotalTimeSeconds());
+        log.info("Total time taken to process submit collection through rest api--->{} sec",stopWatch.getTotalTimeSeconds());
         return responseEntity;
     }
 
@@ -221,10 +218,10 @@ public class SharedCollectionRestController {
     }
 
     private void collectFuturesAndProcess(List<Future> futures) {
-        logger.info("Submit Collection API - Before Collecting Futures - Number of Futures for Match Point Checks: {}", futures.size());
+        log.info("Submit Collection API - Before Collecting Futures - Number of Futures for Match Point Checks: {}", futures.size());
         Set<Integer> bibIds = commonUtil.collectFuturesAndUpdateMAQualifier(futures);
         if (!bibIds.isEmpty()) {
-            logger.info("Submit Collection API - Solr indexing started for MA Qualifier Update. Total Bib Records : {}", bibIds.size());
+            log.info("Submit Collection API - Solr indexing started for MA Qualifier Update. Total Bib Records : {}", bibIds.size());
             submitCollectionService.indexData(bibIds);
         }
     }

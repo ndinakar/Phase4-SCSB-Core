@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 
 
 public class SubmitCollectionValidationServiceUT extends BaseTestCaseUT {
-    private static final Logger logger = LoggerFactory.getLogger(SubmitCollectionValidationService.class);
+
     @InjectMocks
     SubmitCollectionValidationService submitCollectionValidationService;
     @Mock

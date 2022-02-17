@@ -1,20 +1,20 @@
 package org.recap.service.deletedrecords;
 
+import lombok.extern.slf4j.Slf4j;
 import org.recap.ScsbConstants;
 import org.recap.repository.jpa.DeletedRecordsRepository;
 import org.recap.service.EmailService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * Created by sudhishk on 2/6/17.
  */
+@Slf4j
 @Service
 public class DeletedRecordsService {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeletedRecordsService.class);
+
 
     @Autowired
     private DeletedRecordsRepository deletedRecordsRepository;
@@ -30,19 +30,19 @@ public class DeletedRecordsService {
 
         try {
             long lCountDeleted = deletedRecordsRepository.countByDeletedReportedStatus(ScsbConstants.DELETED_STATUS_NOT_REPORTED);
-            logger.info("Count : {}", lCountDeleted);
+            log.info("Count : {}", lCountDeleted);
             if (lCountDeleted > 0) {
                 // Change Status
                 int statusChange = deletedRecordsRepository.updateDeletedReportedStatus(ScsbConstants.DELETED_STATUS_REPORTED, ScsbConstants.DELETED_STATUS_NOT_REPORTED);
-                logger.info("Delete Count : {}" , statusChange);
+                log.info("Delete Count : {}" , statusChange);
                 // Send Email
                 emailService.sendEmail(ScsbConstants.EMAIL_DELETED_RECORDS_DISPLAY_MESSAGE + lCountDeleted, "", ScsbConstants.DELETED_MAIL_TO, ScsbConstants.EMAIL_SUBJECT_DELETED_RECORDS);
             } else {
-                logger.info("No records to delete" );
+                log.info("No records to delete" );
             }
             bReturnMsg = true;
         } catch (Exception ex) {
-            logger.error("", ex);
+            log.error("", ex);
         }
         return bReturnMsg;
     }

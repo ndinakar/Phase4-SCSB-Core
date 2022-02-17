@@ -1,15 +1,12 @@
 package org.recap.activemq;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.broker.jmx.DestinationViewMBean;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.recap.BaseTestCase;
 import org.recap.BaseTestCaseUT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.management.MBeanServerConnection;
@@ -17,11 +14,8 @@ import javax.management.MBeanServerConnection;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-
+@Slf4j
 public class JmxHelperUT extends BaseTestCaseUT {
-
-
-    private static final Logger logger = LoggerFactory.getLogger(JmxHelper.class);
 
     @InjectMocks
     JmxHelper jmxHelper;
@@ -57,7 +51,7 @@ public class JmxHelperUT extends BaseTestCaseUT {
         try {
             connection = jmxHelper.getConnection();
         } catch (Exception e) {
-            logger.info("Exception" + e);
+            log.info("Exception" + e);
         }
         assertNull(connection);
     }

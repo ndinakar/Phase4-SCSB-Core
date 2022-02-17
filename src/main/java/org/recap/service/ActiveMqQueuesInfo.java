@@ -1,12 +1,11 @@
 package org.recap.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.queueinfo.QueueSizeInfoJson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,10 +18,11 @@ import org.springframework.web.client.RestTemplate;
 /**
  * Created by akulak on 20/10/17.
  */
+@Slf4j
 @Service
 public class ActiveMqQueuesInfo {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActiveMqQueuesInfo.class);
+
 
     @Value("${" + PropertyKeyConstants.ACTIVEMQ_JOLOKIA_API_URL + "}")
     private String activeMqApiUrl;
@@ -50,9 +50,9 @@ public class ActiveMqQueuesInfo {
                 queueSizeCount = Integer.valueOf(queueInfo.getValue());
                 break;
             } catch (ResourceAccessException e) {
-                logger.error("ActiveMq slave url called to get queues info ----> {} ",activemqUrl);
+                log.error("ActiveMq slave url called to get queues info ----> {} ",activemqUrl);
             } catch (Exception e){
-                logger.error(ScsbCommonConstants.LOG_ERROR,e);
+                log.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
         return queueSizeCount;

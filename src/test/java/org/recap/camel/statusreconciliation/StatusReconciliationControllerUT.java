@@ -36,7 +36,6 @@ import static org.junit.Assert.assertNotNull;
  */
 public class StatusReconciliationControllerUT extends BaseTestCaseUT {
 
-    private static final Logger logger = LoggerFactory.getLogger(StatusReconciliationController.class);
 
     @InjectMocks
     StatusReconciliationController statusReconciliationController;

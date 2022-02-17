@@ -1,6 +1,7 @@
 package org.recap.camel.submitcollection.processor;
 
 import com.amazonaws.services.s3.AmazonS3;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.recap.PropertyKeyConstants;
@@ -8,15 +9,12 @@ import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.recap.model.reports.ReportDataRequest;
-import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.service.common.SetupDataService;
 import org.recap.service.submitcollection.SubmitCollectionBatchService;
 import org.recap.service.submitcollection.SubmitCollectionReportGenerator;
 import org.recap.service.submitcollection.SubmitCollectionService;
 import org.recap.util.CommonUtil;
 import org.recap.util.PropertyUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -31,11 +29,11 @@ import java.util.concurrent.Future;
 /**
  * Created by premkb on 19/3/17.
  */
+@Slf4j
 @Service
 @Scope("prototype")
 public class SubmitCollectionProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmitCollectionProcessor.class);
 
     @Autowired
     private SubmitCollectionService submitCollectionService;
@@ -109,16 +107,16 @@ public class SubmitCollectionProcessor {
         String xmlFileName = null;
         ExecutorService executorService = null;
         try {
-            logger.info("Submit Collection : Route started and started processing the records from s3 for submitcollection");
+            log.info("Submit Collection : Route started and started processing the records from s3 for submitcollection");
             String inputXml = exchange.getIn().getBody(String.class);
             xmlFileName = exchange.getIn().getHeader(ScsbConstants.CAMEL_FILE_NAME_ONLY).toString();
             xmlFileName = submitCollectionS3BasePath+ institutionCode+ ScsbCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + ScsbCommonConstants.PATH_SEPARATOR + xmlFileName;
-            logger.info("Processing xmlFileName----->{}", xmlFileName);
+            log.info("Processing xmlFileName----->{}", xmlFileName);
             Integer institutionId = setupDataService.getInstitutionCodeIdMap().get(institutionCode);
             executorService = Executors.newFixedThreadPool(10);
             List<Future> futures = new ArrayList<>();
             submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange, executorService, futures);
-            logger.info("Submit Collection : Solr indexing started for {} records", processedBibIds.size());
+            log.info("Submit Collection : Solr indexing started for {} records", processedBibIds.size());
             performIndexing(processedBibIds);
             performIndexingByOwningInstitutionBibIds(updatedBoundWithDummyRecordOwnInstBibIdSet, institutionId);
             performIndexingToRemoveBibs(idMapToRemoveIndexList, bibIdMapToRemoveIndexList);
@@ -134,10 +132,10 @@ public class SubmitCollectionProcessor {
                 awsS3Client.deleteObject(bucketName, xmlFileName);
             }
             stopWatch.stop();
-            logger.info("Submit Collection : Total time taken for processing through s3---> {} sec", stopWatch.getTotalTimeSeconds());
+            log.info("Submit Collection : Total time taken for processing through s3---> {} sec", stopWatch.getTotalTimeSeconds());
         } catch (Exception e) {
-            logger.info("Caught for institution inside catch block {} ",institutionCode);
-            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            log.info("Caught for institution inside catch block {} ",institutionCode);
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
             exchange.setException(e);
             if (executorService != null) {
                 executorService.shutdown();
@@ -146,28 +144,28 @@ public class SubmitCollectionProcessor {
     }
 
     private void performIndexingToRemoveBibs(List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList) {
-        logger.info("Submit Collection : Solr indexing completed and remove the incomplete record from solr index for {} records", idMapToRemoveIndexList.size());
+        log.info("Submit Collection : Solr indexing completed and remove the incomplete record from solr index for {} records", idMapToRemoveIndexList.size());
         if (!idMapToRemoveIndexList.isEmpty() || !bibIdMapToRemoveIndexList.isEmpty()) {//remove the incomplete record from solr index
             StopWatch stopWatchRemovingDummy = new StopWatch();
             stopWatchRemovingDummy.start();
-            logger.info("Calling indexing to remove dummy records");
+            log.info("Calling indexing to remove dummy records");
             new Thread(() -> {
                 try {
                     submitCollectionBatchService.removeBibFromSolrIndex(bibIdMapToRemoveIndexList);
                     submitCollectionBatchService.removeSolrIndex(idMapToRemoveIndexList);
-                    logger.info("Removed dummy records from solr");
+                    log.info("Removed dummy records from solr");
                 } catch (Exception e) {
-                    logger.error(ScsbCommonConstants.LOG_ERROR, e);
+                    log.error(ScsbCommonConstants.LOG_ERROR, e);
                 }
             }).start();
             stopWatchRemovingDummy.stop();
-            logger.info("Time take to call and execute solr call to remove dummy-->{} sec", stopWatchRemovingDummy.getTotalTimeSeconds());
+            log.info("Time take to call and execute solr call to remove dummy-->{} sec", stopWatchRemovingDummy.getTotalTimeSeconds());
         }
     }
 
     private void performIndexingByOwningInstitutionBibIds(Set<String> updatedBoundWithDummyRecordOwnInstBibIdSet, Integer institutionId) {
         if (!updatedBoundWithDummyRecordOwnInstBibIdSet.isEmpty()) {
-            logger.info("Updated boundwith dummy record own inst bib id size-->{}", updatedBoundWithDummyRecordOwnInstBibIdSet.size());
+            log.info("Updated boundwith dummy record own inst bib id size-->{}", updatedBoundWithDummyRecordOwnInstBibIdSet.size());
             submitCollectionService.indexDataUsingOwningInstBibId(new ArrayList<>(updatedBoundWithDummyRecordOwnInstBibIdSet), institutionId);
         }
     }
@@ -182,32 +180,32 @@ public class SubmitCollectionProcessor {
             } else { // If the number of bib Ids is less than configured value, default is 1000, index data without multi-threading
                 indexingStatus = submitCollectionBatchService.indexData(processedBibIds);
             }
-            logger.info("Submit Collection : Solr indexing Status - {}", indexingStatus);
+            log.info("Submit Collection : Solr indexing Status - {}", indexingStatus);
             stopWatchSolrIndexing.stop();
-            logger.info("Submit Collection : Total Time taken to do solr indexing : {} sec", stopWatchSolrIndexing.getTotalTimeSeconds());
+            log.info("Submit Collection : Total Time taken to do solr indexing : {} sec", stopWatchSolrIndexing.getTotalTimeSeconds());
         }
     }
 
     public void caughtException(Exchange exchange) {
-        logger.info("inside caught exception..........");
+        log.info("inside caught exception..........");
         Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
-        logger.info("Headers - institution - {}, isCgdProtected - {}, cgdType - {} ", exchange.getIn().getHeader(ScsbCommonConstants.INSTITUTION),
+        log.info("Headers - institution - {}, isCgdProtected - {}, cgdType - {} ", exchange.getIn().getHeader(ScsbCommonConstants.INSTITUTION),
                 exchange.getIn().getHeader(ScsbCommonConstants.IS_CGD_PROTECTED), exchange.getIn().getHeader(ScsbConstants.CGG_TYPE));
         if (exception != null) {
             String fileName = (String) exchange.getIn().getHeader(Exchange.FILE_NAME);
             String filePath = (String) exchange.getIn().getHeader(Exchange.FILE_PARENT);
             String institutionCode1 = (String) exchange.getIn().getHeader(ScsbCommonConstants.INSTITUTION);
-            logger.info("Institution inside caught  - {}", institutionCode1);
-            logger.info("Exception occured is - {}", exception.getMessage());
+            log.info("Institution inside caught  - {}", institutionCode1);
+            log.info("Exception occured is - {}", exception.getMessage());
             producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForExcepion(institutionCode1, fileName, filePath, exception, exception.getMessage()), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION_EXCEPTION);
         }
     }
 
     private void collectFuturesAndProcess(List<Future> futures) {
-        logger.info("Before Collecting Futures - Number of Futures for Match Point Checks: {}", futures.size());
+        log.info("Before Collecting Futures - Number of Futures for Match Point Checks: {}", futures.size());
         Set<Integer> bibIds = commonUtil.collectFuturesAndUpdateMAQualifier(futures);
         if (!bibIds.isEmpty()) {
-            logger.info("Submit Collection : Solr indexing started for MA Qualifier Update. Total Bib Records : {}", bibIds.size());
+            log.info("Submit Collection : Solr indexing started for MA Qualifier Update. Total Bib Records : {}", bibIds.size());
             performIndexing(bibIds);
         }
     }
@@ -216,7 +214,7 @@ public class SubmitCollectionProcessor {
         EmailPayLoad emailPayLoad = new EmailPayLoad();
         emailPayLoad.setSubject(ScsbConstants.SUBJECT_FOR_SUBMIT_COL_EXCEPTION);
         emailPayLoad.setXmlFileName(name);
-        logger.info("Institution inside email payload for exception- {}", institutionCode);
+        log.info("Institution inside email payload for exception- {}", institutionCode);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_SUBMIT_COLLECTION_TO));
         emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_SUBMIT_COLLECTION_CC));
         emailPayLoad.setLocation(submitCollectionReportS3Dir);
@@ -230,7 +228,7 @@ public class SubmitCollectionProcessor {
 
     private ReportDataRequest getReportDataRequest(String xmlFileName) {
         ReportDataRequest reportRequest = new ReportDataRequest();
-        logger.info("filename--->{}-{}", ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, xmlFileName);
+        log.info("filename--->{}-{}", ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, xmlFileName);
         reportRequest.setFileName(ScsbCommonConstants.SUBMIT_COLLECTION_REPORT + "-" + xmlFileName);
         reportRequest.setInstitutionCode(institutionCode.toUpperCase());
         reportRequest.setReportType(ScsbCommonConstants.SUBMIT_COLLECTION_SUMMARY);
@@ -243,7 +241,7 @@ public class SubmitCollectionProcessor {
         emailPayLoad.setSubject(submitCollectionEmailSubject);
         emailPayLoad.setReportFileName(reportFileName);
         emailPayLoad.setXmlFileName(xmlFileName);
-        logger.info("Institution inside email payload - {}", institutionCode);
+        log.info("Institution inside email payload - {}", institutionCode);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_SUBMIT_COLLECTION_TO));
         emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_SUBMIT_COLLECTION_CC));
         emailPayLoad.setLocation(submitCollectionReportS3Dir);

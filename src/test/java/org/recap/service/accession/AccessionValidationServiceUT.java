@@ -1,5 +1,6 @@
 package org.recap.service.accession;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.marc4j.MarcReader;
@@ -20,8 +21,7 @@ import org.recap.model.jpa.*;
 import org.recap.repository.jpa.*;
 import org.recap.util.AccessionUtil;
 import org.recap.util.MarcUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 
 import javax.xml.bind.JAXBException;
@@ -47,10 +47,8 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by premkb on 3/6/17.
  */
-
+@Slf4j
 public class AccessionValidationServiceUT extends BaseTestCaseUT {
-
-    private static final Logger logger = LoggerFactory.getLogger(AccessionValidationServiceUT.class);
 
     @InjectMocks
     private AccessionValidationService accessionValidationService;
@@ -270,7 +268,7 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
         while (reader.hasNext()) {
             Record record = reader.next();
             recordList.add(record);
-            logger.info(record.toString());
+            log.info(record.toString());
         }
         return recordList;
     }

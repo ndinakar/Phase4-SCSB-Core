@@ -1,8 +1,8 @@
 package org.recap.model.jaxb;
 
+import lombok.extern.slf4j.Slf4j;
 import org.recap.ScsbCommonConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -16,9 +16,9 @@ import java.util.Map;
 /**
  * Created by pvsubrah on 6/21/16.
  */
+@Slf4j
 public class JAXBHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(JAXBHandler.class);
 
     private static JAXBHandler jaxbHandler;
     private Map<String, Unmarshaller> unmarshallerMap;
@@ -53,7 +53,7 @@ public class JAXBHandler {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(object, stringWriter);
         } catch (JAXBException e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            log.error(ScsbCommonConstants.LOG_ERROR,e);
         }
         return stringWriter.toString();
     }

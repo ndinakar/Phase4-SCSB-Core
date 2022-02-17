@@ -1,14 +1,13 @@
 package org.recap.model.jpa;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 import org.recap.model.AbstractResponseItem;
 
 /**
  * Created by sudhishk on 15/12/16.
  */
-@Setter
-@Getter
+@Data
 public class ItemRefileResponse extends AbstractResponseItem {
 
     private Integer requestId;

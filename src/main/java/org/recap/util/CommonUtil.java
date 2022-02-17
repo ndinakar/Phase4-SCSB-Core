@@ -1,5 +1,6 @@
 package org.recap.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Record;
 import org.recap.PropertyKeyConstants;
@@ -13,8 +14,6 @@ import org.recap.model.jaxb.marc.BibRecords;
 import org.recap.model.jpa.*;
 import org.recap.model.report.SubmitCollectionReportInfo;
 import org.recap.repository.jpa.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,11 +31,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 public class CommonUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
+
 
     private Map<String, Integer> itemStatusMap;
     private Map<String, Integer> collectionGroupMap;
@@ -183,7 +182,7 @@ public class CommonUtil {
                     itemStatusMap.put(itemStatusEntity.getStatusCode(), itemStatusEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(ScsbCommonConstants.LOG_ERROR,e);
+                log.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
         return itemStatusMap;
@@ -204,7 +203,7 @@ public class CommonUtil {
                     collectionGroupMap.put(collectionGroupEntity.getCollectionGroupCode(), collectionGroupEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(ScsbCommonConstants.LOG_ERROR,e);
+                log.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
         return collectionGroupMap;
@@ -225,7 +224,7 @@ public class CommonUtil {
                     institutionEntityMap.put(institutionEntity.getInstitutionCode(), institutionEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(ScsbCommonConstants.LOG_ERROR,e);
+                log.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
         return institutionEntityMap;
@@ -287,7 +286,7 @@ public class CommonUtil {
         try {
              bibRecords = extractBibRecords(unmarshal);
         } catch (JAXBException e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            log.error(ScsbCommonConstants.LOG_ERROR,e);
         }
         return bibRecords;
     }
@@ -312,11 +311,11 @@ public class CommonUtil {
         try {
             xsr = xif.createXMLStreamReader(stream);
         } catch (XMLStreamException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
         }
         Unmarshaller um = context.createUnmarshaller();
         bibRecords = (BibRecords) um.unmarshal(xsr);
-        logger.info("bibrecord size {}", bibRecords.getBibRecordList().size());
+        log.info("bibrecord size {}", bibRecords.getBibRecordList().size());
         return bibRecords;
     }
 
@@ -345,7 +344,7 @@ public class CommonUtil {
                 out.append("\n");
             }
         } catch (IOException e) {
-            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
         }
         return out;
     }
@@ -539,10 +538,10 @@ public class CommonUtil {
                     }
                 }
             } catch (Exception e) {
-                logger.error(ScsbCommonConstants.LOG_ERROR, e);
+                log.error(ScsbCommonConstants.LOG_ERROR, e);
             }
         }
-        logger.info("Total Number of Bib Ids Collected for MA Qualifier Update: {}", bibIds.size());
+        log.info("Total Number of Bib Ids Collected for MA Qualifier Update: {}", bibIds.size());
         updateMAQualifierByBibIdSets(allBibIdsToResetAndSetQualifierTo1, allBibIdsToSetQualifierTo2, allBibIdsToResetAndSetQualifierTo3);
         return bibIds;
     }
@@ -550,7 +549,7 @@ public class CommonUtil {
     private void updateMAQualifierByBibIdSets(Set<Integer> allBibIdsToResetAndSetQualifierTo1, Set<Integer> allBibIdsToSetQualifierTo2, Set<Integer> allBibIdsToResetAndSetQualifierTo3) {
         Set<Integer> duplicateBibIds = allBibIdsToResetAndSetQualifierTo1.stream().filter(allBibIdsToSetQualifierTo2::contains).collect(Collectors.toSet());
         if (!duplicateBibIds.isEmpty()) {
-            logger.info("{} Duplicate Bib Ids between MA Qualifier 1 and 2 moved to 3: {}", duplicateBibIds.size(), duplicateBibIds);
+            log.info("{} Duplicate Bib Ids between MA Qualifier 1 and 2 moved to 3: {}", duplicateBibIds.size(), duplicateBibIds);
             allBibIdsToResetAndSetQualifierTo1.removeAll(duplicateBibIds);
             allBibIdsToSetQualifierTo2.removeAll(duplicateBibIds);
             allBibIdsToResetAndSetQualifierTo3.addAll(duplicateBibIds);
@@ -558,27 +557,27 @@ public class CommonUtil {
 
         duplicateBibIds = allBibIdsToSetQualifierTo2.stream().filter(allBibIdsToResetAndSetQualifierTo3::contains).collect(Collectors.toSet());
         if (!duplicateBibIds.isEmpty()) {
-            logger.info("{} Duplicate Bib Ids between MA Qualifier 2 and 3 removed from 2: {}", duplicateBibIds.size(), duplicateBibIds);
+            log.info("{} Duplicate Bib Ids between MA Qualifier 2 and 3 removed from 2: {}", duplicateBibIds.size(), duplicateBibIds);
             allBibIdsToSetQualifierTo2.removeAll(duplicateBibIds);
         }
 
         duplicateBibIds = allBibIdsToResetAndSetQualifierTo1.stream().filter(allBibIdsToResetAndSetQualifierTo3::contains).collect(Collectors.toSet());
         if (!duplicateBibIds.isEmpty()) {
-            logger.info("{} Duplicate Bib Ids between MA Qualifier 1 and 3 removed from 1: {}", duplicateBibIds.size(), duplicateBibIds);
+            log.info("{} Duplicate Bib Ids between MA Qualifier 1 and 3 removed from 1: {}", duplicateBibIds.size(), duplicateBibIds);
             allBibIdsToResetAndSetQualifierTo1.removeAll(duplicateBibIds);
         }
 
         if (!allBibIdsToResetAndSetQualifierTo1.isEmpty()) {
             int countOfUpdatedTo1 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(allBibIdsToResetAndSetQualifierTo1, ScsbCommonConstants.MA_QUALIFIER_1);
-            logger.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_1, countOfUpdatedTo1);
+            log.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_1, countOfUpdatedTo1);
         }
         if (!allBibIdsToSetQualifierTo2.isEmpty()) {
             int countOfUpdatedTo2 = bibliographicDetailsRepository.updateMaQualifier(allBibIdsToSetQualifierTo2, ScsbCommonConstants.MA_QUALIFIER_2);
-            logger.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_2, countOfUpdatedTo2);
+            log.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_2, countOfUpdatedTo2);
         }
         if (!allBibIdsToResetAndSetQualifierTo3.isEmpty()) {
             int countOfUpdatedTo3 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(allBibIdsToResetAndSetQualifierTo3, ScsbCommonConstants.MA_QUALIFIER_3);
-            logger.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_3, countOfUpdatedTo3);
+            log.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_3, countOfUpdatedTo3);
         }
     }
 

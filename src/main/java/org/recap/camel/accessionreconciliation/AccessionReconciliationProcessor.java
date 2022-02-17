@@ -1,13 +1,12 @@
 package org.recap.camel.accessionreconciliation;
 
 import com.amazonaws.services.s3.AmazonS3;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -32,11 +31,12 @@ import java.util.stream.Collectors;
 /**
  * Created by akulak on 16/5/17.
  */
+
+@Slf4j
 @Service
 @Scope("prototype")
 public class AccessionReconciliationProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessionReconciliationProcessor.class);
 
     @Autowired
     CamelContext camelContext;
@@ -93,7 +93,7 @@ public class AccessionReconciliationProcessor {
             if (!filePath.toFile().exists()) {
                 Files.createDirectories(filePath.getParent());
                 Files.createFile(filePath);
-                logger.info("Accession Reconciliation File Created {} ",filePath);
+                log.info("Accession Reconciliation File Created {} ",filePath);
             }
             if(filePath.toFile().exists()){
                 noOfLinesInFile= Files.readAllLines(filePath).size();
@@ -111,7 +111,7 @@ public class AccessionReconciliationProcessor {
             }
         }
         catch (Exception e){
-            logger.error(ScsbCommonConstants.LOG_ERROR ,e);
+            log.error(ScsbCommonConstants.LOG_ERROR ,e);
         }
         startFileSystemRoutesForAccessionReconciliation(exchange,index);
         String xmlFileName = exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY).toString();
@@ -126,12 +126,12 @@ public class AccessionReconciliationProcessor {
 
     private void startFileSystemRoutesForAccessionReconciliation(Exchange exchange,Integer index) {
         if ((boolean)exchange.getProperty(ScsbConstants.CAMEL_SPLIT_COMPLETE)){
-            logger.info("split last index-->{}",index);
+            log.info("split last index-->{}",index);
             try {
-                logger.info("Starting {}{}{}",imsLocationCode, institutionCode, ScsbConstants.ACCESSION_RECONCILIATION_FS_ROUTE_ID);
+                log.info("Starting {}{}{}",imsLocationCode, institutionCode, ScsbConstants.ACCESSION_RECONCILIATION_FS_ROUTE_ID);
                 camelContext.getRouteController().startRoute(imsLocationCode+institutionCode+ ScsbConstants.ACCESSION_RECONCILIATION_FS_ROUTE_ID);
             } catch (Exception e) {
-                logger.error(ScsbCommonConstants.LOG_ERROR, e);
+                log.error(ScsbCommonConstants.LOG_ERROR, e);
             }
         }
     }

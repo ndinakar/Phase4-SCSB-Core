@@ -1,22 +1,21 @@
 package org.recap.service.accession;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @Scope("prototype")
 public class AccessionJobProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessionJobProcessor.class);
 
     @Autowired
     private ProducerTemplate producer;
@@ -28,7 +27,7 @@ public class AccessionJobProcessor {
     private String emailCc;
 
     public void caughtException(Exchange exchange) {
-        logger.info("inside caught exception..........");
+        log.info("inside caught exception..........");
         Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         if (exception != null) {
             producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForException(exception, exception.getMessage()), ScsbConstants.EMAIL_FOR, ScsbConstants.ACCESSION_JOB_FAILURE);

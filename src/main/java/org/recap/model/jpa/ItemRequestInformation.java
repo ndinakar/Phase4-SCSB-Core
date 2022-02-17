@@ -1,16 +1,15 @@
 package org.recap.model.jpa;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 import java.util.List;
 
 /**
  * Created by hemalathas on 1/11/16.
  */
-@Setter
-@Getter
+@Data
 public class ItemRequestInformation {
 
     private List<String> itemBarcodes;

@@ -28,7 +28,6 @@ import static org.junit.Assert.*;
 
 public class AccessionServiceUT extends BaseTestCaseUT {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessionServiceUT.class);
 
     @InjectMocks
     AccessionService mockAccessionService;

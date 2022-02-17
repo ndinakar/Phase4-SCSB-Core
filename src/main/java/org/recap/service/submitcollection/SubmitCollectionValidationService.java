@@ -1,5 +1,6 @@
 package org.recap.service.submitcollection;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
@@ -11,8 +12,6 @@ import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
 import org.recap.service.common.SetupDataService;
 import org.recap.util.CommonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,10 +25,11 @@ import java.util.stream.Collectors;
 /**
  * Created by premkb on 11/7/17.
  */
+@Slf4j
 @Service
 public class SubmitCollectionValidationService {
 
-    private final Logger logger = LoggerFactory.getLogger(SubmitCollectionValidationService.class);
+
 
     @Autowired
     private InstitutionDetailsRepository institutionDetailsRepository;
@@ -141,11 +141,11 @@ public class SubmitCollectionValidationService {
         for(BibliographicEntity bibliographicEntity:bibliographicEntityList){
             owningInstBibIdOwningInstHoldingsIdMap.put(bibliographicEntity.getOwningInstitutionBibId(),bibliographicEntity.getHoldingsEntities().get(0).getOwningInstitutionHoldingsId());
             holdingsIdList.add(bibliographicEntity.getHoldingsEntities().get(0).getOwningInstitutionHoldingsId());
-            logger.info("hold id--->{}",bibliographicEntity.getHoldingsEntities().get(0).getOwningInstitutionHoldingsId());
+            log.info("hold id--->{}",bibliographicEntity.getHoldingsEntities().get(0).getOwningInstitutionHoldingsId());
         }
         holdingsIdUniqueList.addAll(holdingsIdList.stream().distinct().collect(Collectors.toList()));
-        logger.info("holdingsIdUniqueList size--->{}",holdingsIdUniqueList.size());
-        logger.info("holdingsIdUniqueList --->{}",holdingsIdUniqueList.stream().collect(Collectors.joining(",")));
+        log.info("holdingsIdUniqueList size--->{}",holdingsIdUniqueList.size());
+        log.info("holdingsIdUniqueList --->{}",holdingsIdUniqueList.stream().collect(Collectors.joining(",")));
         if(!holdingsIdUniqueList.isEmpty()){
             return owningInstBibIdOwningInstHoldingsIdMap;
         }
