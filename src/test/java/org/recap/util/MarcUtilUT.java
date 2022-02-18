@@ -17,6 +17,7 @@ import org.recap.model.marc.BibMarcRecord;
 import org.recap.model.marc.HoldingsMarcRecord;
 import org.recap.model.marc.ItemMarcRecord;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.marc4j.marc.Record;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

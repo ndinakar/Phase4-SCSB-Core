@@ -21,15 +21,13 @@ import org.recap.model.jpa.ItemEntity;
 import org.recap.model.report.SubmitCollectionReportInfo;
 import org.recap.model.submitcollection.BoundWithBibliographicEntityObject;
 import org.recap.model.submitcollection.NonBoundWithBibliographicEntityObject;
-import org.recap.repository.jpa.BibliographicDetailsRepository;
-import org.recap.repository.jpa.ImsLocationDetailsRepository;
-import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
-import org.recap.repository.jpa.ItemDetailsRepository;
+import org.recap.repository.jpa.*;
 import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.common.RepositoryService;
 import org.recap.service.common.SetupDataService;
 import org.recap.service.submitcollection.callable.SubmitCollectionMatchPointsCheckCallable;
 import org.recap.util.MarcUtil;
+import org.recap.util.PropertyUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -65,7 +63,13 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
     private RepositoryService repositoryService;
 
     @Mock
+    private PropertyUtil propertyUtil;
+
+    @Mock
     ExecutorService executorService;
+
+    @Mock
+    InstitutionDetailsRepository institutionDetailsRepository;
 
     @Mock
     private EntityManager entityManager;
