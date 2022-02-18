@@ -21,6 +21,7 @@ import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
+import org.recap.util.PropertyUtil;
 
 import java.io.File;
 import java.net.URL;
@@ -71,6 +72,9 @@ public class AccessionMarcToBibEntityConverterUT extends BaseTestCaseUT {
 
     @Mock
     ItemMarcRecord itemMarcRecord;
+
+    @Mock
+    PropertyUtil propertyUtil;
 
     @Test
     public void convert() throws Exception {

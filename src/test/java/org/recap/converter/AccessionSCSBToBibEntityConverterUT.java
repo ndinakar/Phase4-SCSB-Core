@@ -24,6 +24,7 @@ import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
+import org.recap.util.PropertyUtil;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.xml.bind.JAXBContext;
@@ -91,6 +92,9 @@ public class AccessionSCSBToBibEntityConverterUT extends BaseTestCaseUT {
 
     @Mock
     LeaderFieldType leader;
+
+    @Mock
+    PropertyUtil propertyUtil;
 
     private String scsbXmlContent = "<bibRecords>\n" +
             "    <bibRecord>\n" +

@@ -22,6 +22,7 @@ import org.recap.repository.jpa.OwnerCodeDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
+import org.recap.util.PropertyUtil;
 
 import java.io.File;
 import java.net.URL;
@@ -94,6 +95,9 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
     @Mock
     ReportEntity bibReportEntity;
 
+    @Mock
+    PropertyUtil propertyUtil;
+
     @Test
     public void convert() throws Exception {
         List<Record> records = getRecords();
@@ -141,7 +145,7 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         BibliographicEntity bibliographicEntity = (BibliographicEntity)convertedMap.get("bibliographicEntity");
         assertNotNull(bibliographicEntity);
         assertEquals("115115",bibliographicEntity.getOwningInstitutionBibId());
-        assertEquals(new Integer(3),bibliographicEntity.getOwningInstitutionId());
+        assertEquals(Integer.valueOf(3),bibliographicEntity.getOwningInstitutionId());
         assertEquals("5123222f-2333-413e-8c9c-cb8709f010c3",bibliographicEntity.getHoldingsEntities().get(0).getOwningInstitutionHoldingsId());
     }
 
@@ -203,7 +207,7 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         BibliographicEntity bibliographicEntity = (BibliographicEntity)convertedMap.get("bibliographicEntity");
         assertNotNull(bibliographicEntity);
         assertEquals("115115",bibliographicEntity.getOwningInstitutionBibId());
-        assertEquals(new Integer(3),bibliographicEntity.getOwningInstitutionId());
+        assertEquals(Integer.valueOf(3),bibliographicEntity.getOwningInstitutionId());
         assertEquals("5123222f-2333-413e-8c9c-cb8709f010c3",bibliographicEntity.getHoldingsEntities().get(0).getOwningInstitutionHoldingsId());
     }
 
