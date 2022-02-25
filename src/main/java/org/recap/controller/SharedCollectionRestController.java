@@ -228,4 +228,11 @@ public class SharedCollectionRestController {
             submitCollectionService.indexData(bibIds);
         }
     }
+
+    @GetMapping(value = "/updateItemHoldings")
+    @ResponseBody
+    public ResponseEntity<String> UpdateItemHoldings() {
+        String responseMessage = accessionService.updateItemHoldings();
+        return new ResponseEntity<>(responseMessage, getHttpHeaders(), HttpStatus.OK);
+    }
 }

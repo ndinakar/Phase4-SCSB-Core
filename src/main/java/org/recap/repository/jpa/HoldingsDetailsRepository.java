@@ -65,4 +65,5 @@ public interface HoldingsDetailsRepository extends BaseRepository<HoldingsEntity
 
     HoldingsEntity findByOwningInstitutionHoldingsIdAndOwningInstitutionId(String owningInstitutionHoldingsId, Integer owningInstitutionId);
 
+    HoldingsEntity findByOwningInstitutionHoldingsId(String holdingId);
 }

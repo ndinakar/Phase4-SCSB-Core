@@ -2,6 +2,7 @@ package org.recap.util;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.marc4j.marc.Record;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
@@ -11,6 +12,8 @@ import org.recap.model.accession.AccessionResponse;
 import org.recap.model.jpa.*;
 import org.recap.model.request.ItemCheckInRequest;
 import org.recap.model.request.ItemCheckinResponse;
+import org.recap.model.xl.ItemHoldingData;
+import org.recap.model.xl.ItemReader;
 import org.recap.repository.jpa.*;
 import org.recap.service.accession.AccessionInterface;
 import org.recap.service.accession.AccessionResolverFactory;
@@ -26,7 +29,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
+import com.csvreader.CsvWriter;
+import com.poiji.bind.Poiji;
+import java.io.File;
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -49,6 +56,15 @@ public class AccessionProcessService {
 
     @Autowired
     private InstitutionDetailsRepository institutionDetailsRepository;
+
+    @Autowired
+    CsvUtil csvUtil;
+
+    @Autowired
+    MarcUtil marcUtil;
+
+    @Autowired
+    HoldingsDetailsRepository holdingsDetailsRepository;
 
     @Autowired
     AccessionUtil accessionUtil;
@@ -407,6 +423,60 @@ public class AccessionProcessService {
             }
         }
         return institutionEntityMap;
+    }
+    public String updateItemHoldings() {
+           SimpleDateFormat sdf = new SimpleDateFormat(ScsbConstants.DATE_FORMAT_FOR_REPORTS);
+        String formattedDate = sdf.format(new Date());
+        String fileNameWithExtension = "/recap-vol/reports/item-holding/" + File.separator + "ITEM_HOLDINGS_DATA-"+formattedDate + ScsbConstants.CSV_EXTENSION;
+       File file = new File(fileNameWithExtension);
+        CsvWriter csvOutput = null;
+        try (FileWriter fileWriter = new FileWriter(file, true)) {
+                    csvOutput = new CsvWriter(fileWriter, ',');
+                    csvUtil.writeHeaderRowForItemHoldingReport(csvOutput);
+                }catch (Exception e){
+                    logger.info("EXCEPTION OCCURED WHILE UPDATING ITEMHLODINGS DATA");
+                }
+        try {
+                   String customerCode = "";
+                    String bibData = null;
+                    List<ItemReader> itemReaderList = Poiji.fromExcel(new File("/recap-vol/reports/item-holding/INPUT_DATA.xlsx"),ItemReader.class);
+                    for (ItemReader itemReader: itemReaderList) {
+                            ILSConfigProperties ilsConfigProperties = propertyUtil.getILSConfigProperties(itemReader.getInstitution());
+                            AccessionInterface formatResolver = accessionResolverFactory.getFormatResolver(ilsConfigProperties.getBibDataFormat());
+                            bibData = formatResolver.getItemHoldingData(itemReader.getBarcode(), customerCode, itemReader.getInstitution());
+                            Object unmarshalObject = formatResolver.unmarshal(bibData);
+                            List<Record> records = (List<Record>) unmarshalObject;
+                            String holdingId=null;
+                            String barcode = null;
+                           for(Record record: records){
+                                    holdingId = marcUtil.getDataFieldValue(record,"876",'0');
+                                    barcode  = marcUtil.getDataFieldValue(record,"876",'p');
+                                    if(holdingId != null){
+                                           break;
+                                        }
+                                }
+                            if(holdingId != null) {
+                                    HoldingsEntity holdingsEntity = holdingsDetailsRepository.findByOwningInstitutionHoldingsId(holdingId);
+                                    List<ItemEntity> itemEntity = itemDetailsRepository.findByBarcode(itemReader.getBarcode());
+                                    ItemHoldingData itemHoldingData = new ItemHoldingData();
+                                    if(itemEntity.size()>0){
+                                            itemHoldingData.setItemId(String.valueOf(itemEntity.get(0).getId()));
+                                        }
+                                    itemHoldingData.setHoldingId(holdingId);
+                                    itemHoldingData.setScsbHoldingId(String.valueOf(holdingsEntity.getId()));
+                itemHoldingData.setBarcode(barcode);
+                                   csvUtil.writeDataRowForItemHoldingReport(itemHoldingData, csvOutput);
+                               }
+                       }
+                }catch (Exception e){
+                    logger.info("EXCEPTION OCCURED WHILE UPDATING ITEMHLODINGS DATA"+e.getMessage());
+                }finally {
+                   if(csvOutput != null) {
+                            csvOutput.flush();
+                            csvOutput.close();
+                        }
+               }
+        return "PROCESS IS DONE";
     }
 
 }

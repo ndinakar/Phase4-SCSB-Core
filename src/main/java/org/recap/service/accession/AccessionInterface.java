@@ -20,4 +20,6 @@ public interface AccessionInterface {
      ItemEntity getItemEntityFromRecord(Object object, Integer owningInstitutionId);
 
      boolean isAccessionProcess(ItemEntity itemEntity, String owningInstitution);
+
+     String getItemHoldingData(String itemBarcode, String customerCode,String institution);
 }

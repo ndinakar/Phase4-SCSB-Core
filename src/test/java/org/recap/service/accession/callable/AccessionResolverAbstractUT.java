@@ -40,6 +40,11 @@ public class AccessionResolverAbstractUT extends BaseTestCaseUT {
             }
 
             @Override
+            public String getItemHoldingData(String itemBarcode, String customerCode, String institution) {
+                return null;
+            }
+
+            @Override
             public Object unmarshal(String unmarshal) {
                 return null;
             }
@@ -78,6 +83,11 @@ public class AccessionResolverAbstractUT extends BaseTestCaseUT {
             }
 
             @Override
+            public String getItemHoldingData(String itemBarcode, String customerCode, String institution) {
+                return null;
+            }
+
+            @Override
             public String processXml(Set<AccessionResponse> accessionResponses, Object object, List<Map<String, String>> responseMapList, String owningInstitution, List<ReportDataEntity> reportDataEntityList, AccessionRequest accessionRequest, ImsLocationEntity imsLocationEntity) throws Exception {
                 return null;
             }
@@ -112,6 +122,10 @@ public class AccessionResolverAbstractUT extends BaseTestCaseUT {
 
             @Override
             public String processXml(Set<AccessionResponse> accessionResponses, Object object, List<Map<String, String>> responseMapList, String owningInstitution, List<ReportDataEntity> reportDataEntityList, AccessionRequest accessionRequest, ImsLocationEntity imsLocationEntity) throws Exception {
+                return null;
+            }
+            @Override
+            public String getItemHoldingData(String itemBarcode, String customerCode, String institution) {
                 return null;
             }
 

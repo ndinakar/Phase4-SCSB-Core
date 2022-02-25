@@ -130,4 +130,11 @@ public class SCSBFormatResolver extends AccessionResolverAbstract {
     private boolean isBoundWithItemForScsbRecord(List<BibRecord> bibRecordList) {
         return bibRecordList.size() > 1;
     }
+
+    @Override
+    public String getItemHoldingData(String itemBarcode, String customerCode, String institution) {
+        ILSConfigProperties ilsConfigProperties = propertyUtil.getILSConfigProperties(institution);
+        BibDataForAccessionInterface bibDataForAccessionInterface = bibDataFactory.getAuth(ilsConfigProperties.getIlsBibdataApiAuth());
+        return bibDataForAccessionInterface.getBibData(itemBarcode, customerCode, institution, ilsConfigProperties.getIlsBibdataApiEndpoint());
+    }
 }

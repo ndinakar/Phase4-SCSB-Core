@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 
@@ -153,4 +154,7 @@ public class AccessionService {
         accessionUtil.saveReportEntity(null, reportDataEntityList);
     }
 
+    public String updateItemHoldings() {
+        return accessionProcessService.updateItemHoldings();
+    }
 }

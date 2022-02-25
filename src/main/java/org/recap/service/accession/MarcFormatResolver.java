@@ -97,4 +97,11 @@ public class MarcFormatResolver extends AccessionResolverAbstract {
         return null;
     }
 
+    @Override
+    public String getItemHoldingData(String itemBarcode, String customerCode, String institution) {
+        ILSConfigProperties ilsConfigProperties = propertyUtil.getILSConfigProperties(institution);
+        BibDataForAccessionInterface bibDataForAccessionInterface = bibDataFactory.getAuth(ilsConfigProperties.getIlsBibdataApiAuth());
+        return bibDataForAccessionInterface.getBibData(itemBarcode, customerCode, institution, ilsConfigProperties.getIlsBibdataApiEndpoint());
+    }
+
 }
