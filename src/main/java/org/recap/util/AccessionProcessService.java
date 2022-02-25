@@ -453,12 +453,10 @@ public class AccessionProcessService {
         SimpleDateFormat sdf = new SimpleDateFormat(ScsbConstants.DATE_FORMAT_FOR_REPORTS);
         String formattedDate = sdf.format(new Date());
         String fileNameWithExtension = "/recap-vol/reports/item-holding/" + File.separator + "ITEM_HOLDINGS_DATA-" + formattedDate + ScsbConstants.CSV_EXTENSION;
-        File file = new File(fileNameWithExtension);
-        CsvWriter csvOutput = null;
+        FileWriter fileWriter = null;
+        StringBuilder data = new StringBuilder();
         try{
-            FileWriter fileWriter = new FileWriter(file, true);
-            csvOutput = new CsvWriter(fileWriter, ',');
-            csvUtil.writeHeaderRowForItemHoldingReport(csvOutput);
+            fileWriter = new FileWriter(fileNameWithExtension);
         } catch (Exception e) {
             logger.info("EXCEPTION OCCURED WHILE UPDATING ITEMHLODINGS DATA"+e.getMessage());
         }
@@ -501,14 +499,13 @@ public class AccessionProcessService {
             }
         }
         try {
-            csvUtil.writeDataRowForItemHoldingReport(itemHoldingDataList, csvOutput);
+            csvUtil.writeDataRowForItemHoldingReport(itemHoldingDataList, fileWriter,data);
+            fileWriter.write(data.toString());
+            fileWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (csvOutput != null) {
-            csvOutput.flush();
-            csvOutput.close();
-        }
+
         return "PROCESS IS DONE";
     }
 

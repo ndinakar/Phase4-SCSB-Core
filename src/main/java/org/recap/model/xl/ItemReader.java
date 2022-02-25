@@ -16,24 +16,6 @@ public class ItemReader {
 
     @Override
     public String toString() {
-        return BeanUtil.toString(this);
+        return (this.barcode+", "+this.institution);
     }
-
-    public class BeanUtil {
-        private BeanUtil() {
-            super();
-        }
-
-        public static String toString(Object o) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                return mapper.writeValueAsString(o);
-            } catch (JsonProcessingException e) {
-                return null;
-            }
-        }
-    }
-
-
-
 }
