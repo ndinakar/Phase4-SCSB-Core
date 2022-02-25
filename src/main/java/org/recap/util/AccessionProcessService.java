@@ -49,6 +49,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -454,15 +455,17 @@ public class AccessionProcessService {
         String fileNameWithExtension = "/recap-vol/reports/item-holding/" + File.separator + "ITEM_HOLDINGS_DATA-" + formattedDate + ScsbConstants.CSV_EXTENSION;
         File file = new File(fileNameWithExtension);
         CsvWriter csvOutput = null;
-        try (FileWriter fileWriter = new FileWriter(file, true)) {
+        try{
+            FileWriter fileWriter = new FileWriter(file, true);
             csvOutput = new CsvWriter(fileWriter, ',');
             csvUtil.writeHeaderRowForItemHoldingReport(csvOutput);
         } catch (Exception e) {
-            logger.info("EXCEPTION OCCURED WHILE UPDATING ITEMHLODINGS DATA");
+            logger.info("EXCEPTION OCCURED WHILE UPDATING ITEMHLODINGS DATA"+e.getMessage());
         }
         String customerCode = "";
         String bibData = null;
         List<ItemReader> itemReaderList = Poiji.fromExcel(new File("/recap-vol/reports/item-holding/INPUT_DATA.xlsx"), ItemReader.class);
+        List<ItemHoldingData> itemHoldingDataList = new ArrayList<>();
         for (ItemReader itemReader : itemReaderList) {
             try {
                 ILSConfigProperties ilsConfigProperties = propertyUtil.getILSConfigProperties(itemReader.getInstitution());
@@ -491,12 +494,16 @@ public class AccessionProcessService {
                         itemHoldingData.setScsbHoldingId(String.valueOf(holdingsEntity.getId()));
                     }
                     itemHoldingData.setBarcode(barcode);
-                    logger.info("DATA:" + itemHoldingData.getBarcode() + " " + itemHoldingData.getHoldingId() + " " + itemHoldingData.getScsbHoldingId() + " " + itemHoldingData.getItemId());
-                    csvUtil.writeDataRowForItemHoldingReport(itemHoldingData, csvOutput);
+                    itemHoldingDataList.add(itemHoldingData);
                 }
             } catch (Exception e) {
                 logger.info("EXCEPTION OCCURED WHILE UPDATING ITEMHLODINGS DATA" + e.getMessage());
             }
+        }
+        try {
+            csvUtil.writeDataRowForItemHoldingReport(itemHoldingDataList, csvOutput);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         if (csvOutput != null) {
             csvOutput.flush();
