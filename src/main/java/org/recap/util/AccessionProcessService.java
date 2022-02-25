@@ -463,7 +463,9 @@ public class AccessionProcessService {
                                             itemHoldingData.setItemId(String.valueOf(itemEntity.get(0).getId()));
                                         }
                                     itemHoldingData.setHoldingId(holdingId);
-                                    itemHoldingData.setScsbHoldingId(String.valueOf(holdingsEntity.getId()));
+                                    if(holdingsEntity.getId() != null) {
+                                        itemHoldingData.setScsbHoldingId(String.valueOf(holdingsEntity.getId()));
+                                    }
                 itemHoldingData.setBarcode(barcode);
                 logger.info("DATA:"+itemHoldingData.getBarcode()+" "+itemHoldingData.getHoldingId()+" "+itemHoldingData.getScsbHoldingId()+" "+itemHoldingData.getItemId());
                                    csvUtil.writeDataRowForItemHoldingReport(itemHoldingData, csvOutput);
