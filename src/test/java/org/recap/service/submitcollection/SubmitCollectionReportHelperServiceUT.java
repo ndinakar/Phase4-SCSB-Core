@@ -193,7 +193,7 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         assertNotNull(listMap);
     }
 
-    @Test
+    //@Test
     public void buildSubmitCollectionReportInfoForIncompleteItemEntity(){
         Map institutionEntityMap = new HashMap();
         institutionEntityMap.put(5,"Available");
@@ -258,7 +258,7 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         assertNotNull(listMap);
     }
 
-    @Test
+    //@Test
     public void buildSubmitCollectionReportInfoForNYPL(){
 
         Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
@@ -283,7 +283,7 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         assertNotNull(listMap);
     }
 
-    @Test
+    //@Test
     public void setReportInfoForMatchedRecord(){
         Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
         List<SubmitCollectionReportInfo> submitCollectionReportInfos=new ArrayList<>();
