@@ -1,6 +1,5 @@
 package org.recap.util;
 
-import com.csvreader.CsvWriter;
 import com.poiji.bind.Poiji;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -452,13 +451,13 @@ public class AccessionProcessService {
     public String updateItemHoldings() {
         SimpleDateFormat sdf = new SimpleDateFormat(ScsbConstants.DATE_FORMAT_FOR_REPORTS);
         String formattedDate = sdf.format(new Date());
-        String fileNameWithExtension = "/recap-vol/reports/item-holding/" + File.separator + "ITEM_HOLDINGS_DATA-" + formattedDate + ScsbConstants.CSV_EXTENSION;
+        String fileNameWithExtension = "/recap-vol/reports/item-holding/" + File.separator + ScsbConstants.ITEMHLODINGS_APPEND + formattedDate + ScsbConstants.CSV_EXTENSION;
         FileWriter fileWriter = null;
         StringBuilder data = new StringBuilder();
         try{
             fileWriter = new FileWriter(fileNameWithExtension);
         } catch (Exception e) {
-            logger.info("EXCEPTION OCCURED WHILE UPDATING ITEMHLODINGS DATA"+e.getMessage());
+            logger.info(ScsbConstants.EXCEPTION_MSG + e.getMessage());
         }
         String customerCode = "";
         String bibData = null;
@@ -495,7 +494,7 @@ public class AccessionProcessService {
                     itemHoldingDataList.add(itemHoldingData);
                 }
             } catch (Exception e) {
-                logger.info("EXCEPTION OCCURED WHILE UPDATING ITEMHLODINGS DATA" + e.getMessage());
+                logger.info(ScsbConstants.EXCEPTION_MSG + e.getMessage());
             }
         }
         try {

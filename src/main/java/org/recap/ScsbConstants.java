@@ -229,4 +229,6 @@ public final class ScsbConstants {
     public static final String LOG_MATCH_ID_QUALIFIER_UPDATE = "Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}";
     public static final String CSV_EXTENSION = ".csv";
     public static final String DATE_FORMAT_FOR_REPORTS = "yyyyMMdd_HHmmss";
+    public static final String EXCEPTION_MSG = "EXCEPTION OCCURED WHILE UPDATING ITEMHLODINGS DATA";
+    public static final String ITEMHLODINGS_APPEND = "ITEM_HOLDINGS_DATA-";
 }
