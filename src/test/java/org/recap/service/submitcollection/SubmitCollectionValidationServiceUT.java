@@ -99,7 +99,7 @@ public class SubmitCollectionValidationServiceUT extends BaseTestCaseUT {
         boolean result = submitCollectionValidationService.validateInstitution(institutionCode);
         assertEquals(true,result);
     }
-    @Test
+    //@Test
     public void validateIncomingEntities(){
         Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
         List<SubmitCollectionReportInfo> submitCollectionReportInfos = new ArrayList<>();
@@ -142,7 +142,7 @@ public class SubmitCollectionValidationServiceUT extends BaseTestCaseUT {
         boolean isExistingBoundWithItem=submitCollectionValidationService.isExistingBoundWithItem(incomingItemEntity);
         assertTrue(isExistingBoundWithItem);
     }
-    @Test
+    //@Test
     public void validateIncomingEntitiesForNYPL(){
         Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
         List<SubmitCollectionReportInfo> submitCollectionReportInfos = new ArrayList<>();

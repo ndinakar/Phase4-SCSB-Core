@@ -3,7 +3,6 @@ package org.recap.converter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.marc4j.marc.Leader;
 import org.marc4j.marc.Record;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
@@ -13,11 +12,12 @@ import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.model.jpa.ItemEntity;
-import org.recap.model.jpa.ReportDataEntity;
 import org.recap.model.marc.BibMarcRecord;
 import org.recap.model.marc.HoldingsMarcRecord;
 import org.recap.model.marc.ItemMarcRecord;
+import org.recap.util.AccessionUtil;
 import org.recap.util.MarcUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,6 +28,9 @@ import java.util.Map;
 
 @Service
 public class AccessionMarcToBibEntityConverter extends AccessionXmlConverterAbstract {
+
+    @Autowired
+    AccessionUtil  accessionUtil;
 
     /**
      * This method uses the marc record and builds the bibliographic entity. For exceptions, adds them to report entities. Also adds failed record counts.
@@ -154,7 +157,7 @@ public class AccessionMarcToBibEntityConverter extends AccessionXmlConverterAbst
      * @param errorMessage
      * @return
      */
-    private Map<String, Object> processAndValidateBibliographicEntity(Record bibRecord, Integer owningInstitutionId,Date currentDate,StringBuilder errorMessage) {
+    private Map<String, Object> processAndValidateBibliographicEntity(Record bibRecord, Integer owningInstitutionId, Date currentDate, StringBuilder errorMessage) {
         int failedBibCount = 0;
         int successBibCount = 0;
         int exitsBibCount = 0;
@@ -173,60 +176,7 @@ public class AccessionMarcToBibEntityConverter extends AccessionXmlConverterAbst
         } else {
             errorMessage.append("Owning Institution Id cannot be null").append(",");
         }
-        bibliographicEntity.setDeleted(false);
-        bibliographicEntity.setCreatedDate(currentDate);
-        bibliographicEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
-        bibliographicEntity.setLastUpdatedDate(currentDate);
-        bibliographicEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
-
-        String bibContent = marcUtil.writeMarcXml(bibRecord);
-        if (StringUtils.isNotBlank(bibContent)) {
-            bibliographicEntity.setContent(bibContent.getBytes());
-        } else {
-            errorMessage.append("Bib Content cannot be empty").append(",");
-        }
-
-        boolean subFieldExistsFor245 = marcUtil.isSubFieldExists(bibRecord, "245");
-        if (!subFieldExistsFor245) {
-            errorMessage.append("Atleast one subfield should be there for 245 tag").append(",");
-        }
-        Leader leader = bibRecord.getLeader();
-        if(leader == null){
-            errorMessage.append(" Leader field is missing").append(",");
-        } else {
-            String leaderValue = bibRecord.getLeader().toString();
-            if (!(StringUtils.isNotBlank(leaderValue) && leaderValue.length() == 24)) {
-                errorMessage.append("Leader Field value should be 24 characters").append(",");
-            }
-        }
-        if(owningInstitutionId != null && StringUtils.isNotBlank(owningInstitutionBibId)){
-            BibliographicEntity existBibliographicEntity = bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibIdAndIsDeletedFalse(owningInstitutionId,owningInstitutionBibId);
-            if(null != existBibliographicEntity){
-                exitsBibCount = 1;
-            }
-        }
-        List<ReportDataEntity> reportDataEntities = null;
-
-        if (errorMessage.toString().length() > 1) {
-            if(exitsBibCount == 0){
-                failedBibCount = failedBibCount+1;
-            }
-            reasonForFailureBib = errorMessage.toString();
-            reportDataEntities = dbReportUtil.generateBibFailureReportEntity(bibliographicEntity, bibRecord);
-            ReportDataEntity errorReportDataEntity = new ReportDataEntity();
-            errorReportDataEntity.setHeaderName(ScsbCommonConstants.ERROR_DESCRIPTION);
-            errorReportDataEntity.setHeaderValue(errorMessage.toString());
-            reportDataEntities.add(errorReportDataEntity);
-        }else if(exitsBibCount == 0){
-            successBibCount = successBibCount+1;
-        }
-
-        map.put(ScsbCommonConstants.FAILED_BIB_COUNT , failedBibCount);
-        map.put(ScsbCommonConstants.REASON_FOR_BIB_FAILURE , reasonForFailureBib);
-        map.put(ScsbCommonConstants.BIBLIOGRAPHICENTITY, bibliographicEntity);
-        map.put(ScsbCommonConstants.SUCCESS_BIB_COUNT,successBibCount);
-        map.put(ScsbCommonConstants.EXIST_BIB_COUNT,exitsBibCount);
-        return map;
+        return accessionUtil.processAndValidateBGEntity(bibRecord, bibliographicEntity, errorMessage, owningInstitutionBibId, owningInstitutionId, exitsBibCount, failedBibCount, successBibCount, reasonForFailureBib, map, currentDate);
     }
 
     /**

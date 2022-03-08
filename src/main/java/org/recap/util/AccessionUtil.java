@@ -133,70 +133,13 @@ public class AccessionUtil {
         } else {
             errorMessage.append("Owning Institution Id cannot be null").append(",");
         }
-        bibliographicEntity.setDeleted(false);
-        bibliographicEntity.setCreatedDate(currentDate);
-        bibliographicEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
-        bibliographicEntity.setLastUpdatedDate(currentDate);
-        bibliographicEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
-
-
-    // FORMAT SPECIFIC
-
         String owningInstitutionBibId = marcUtil.getControlFieldValue(bibRecord, "001");
         if (StringUtils.isNotBlank(owningInstitutionBibId)) {
             bibliographicEntity.setOwningInstitutionBibId(owningInstitutionBibId);
         } else {
             errorMessage.append("Owning Institution Bib Id cannot be null").append(",");
         }
-        String bibContent = marcUtil.writeMarcXml(bibRecord);
-        if (StringUtils.isNotBlank(bibContent)) {
-            bibliographicEntity.setContent(bibContent.getBytes());
-        } else {
-            errorMessage.append("Bib Content cannot be empty").append(",");
-        }
-
-        boolean subFieldExistsFor245 = marcUtil.isSubFieldExists(bibRecord, "245");
-        if (!subFieldExistsFor245) {
-            errorMessage.append("Atleast one subfield should be there for 245 tag").append(",");
-        }
-        Leader leader = bibRecord.getLeader();
-        if(leader == null){
-            errorMessage.append(" Leader field is missing").append(",");
-        } else {
-            String leaderValue = bibRecord.getLeader().toString();
-            if (!(StringUtils.isNotBlank(leaderValue) && leaderValue.length() == 24)) {
-                errorMessage.append("Leader Field value should be 24 characters").append(",");
-            }
-        }
-
-        if(owningInstitutionId != null && StringUtils.isNotBlank(owningInstitutionBibId)){
-            BibliographicEntity existBibliographicEntity = bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibIdAndIsDeletedFalse(owningInstitutionId,owningInstitutionBibId);
-            if(null != existBibliographicEntity){
-                exitsBibCount = 1;
-            }
-        }
-        List<ReportDataEntity> reportDataEntities = null;
-
-        if (errorMessage.toString().length() > 1) {
-            if(exitsBibCount == 0){
-                failedBibCount = failedBibCount+1;
-            }
-            reasonForFailureBib = errorMessage.toString();
-            reportDataEntities = dbReportUtil.generateBibFailureReportEntity(bibliographicEntity, bibRecord);
-            ReportDataEntity errorReportDataEntity = new ReportDataEntity();
-            errorReportDataEntity.setHeaderName(ScsbCommonConstants.ERROR_DESCRIPTION);
-            errorReportDataEntity.setHeaderValue(errorMessage.toString());
-            reportDataEntities.add(errorReportDataEntity);
-        }else if(exitsBibCount == 0){
-            successBibCount = successBibCount+1;
-        }
-
-        map.put(ScsbCommonConstants.FAILED_BIB_COUNT , failedBibCount);
-        map.put(ScsbCommonConstants.REASON_FOR_BIB_FAILURE , reasonForFailureBib);
-        map.put(ScsbCommonConstants.BIBLIOGRAPHICENTITY, bibliographicEntity);
-        map.put(ScsbCommonConstants.SUCCESS_BIB_COUNT,successBibCount);
-        map.put(ScsbCommonConstants.EXIST_BIB_COUNT,exitsBibCount);
-        return map;
+        return processAndValidateBGEntity(bibRecord, bibliographicEntity, errorMessage, owningInstitutionBibId, owningInstitutionId, exitsBibCount, failedBibCount, successBibCount, reasonForFailureBib, map, currentDate);
     }
 
     /**
@@ -649,5 +592,63 @@ public class AccessionUtil {
         reportEntity.setInstitutionName(owningInstitution);
         reportEntity.setCreatedDate(new Date());
         return reportEntity;
+    }
+
+    public Map<String, Object> processAndValidateBGEntity(Record bibRecord, BibliographicEntity bibliographicEntity, StringBuilder errorMessage, String owningInstitutionBibId, Integer owningInstitutionId, int exitsBibCount, int failedBibCount, int successBibCount, String reasonForFailureBib, Map<String, Object> map, Date currentDate) {
+        bibliographicEntity.setDeleted(false);
+        bibliographicEntity.setCreatedDate(currentDate);
+        bibliographicEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
+        bibliographicEntity.setLastUpdatedDate(currentDate);
+        bibliographicEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
+
+        String bibContent = marcUtil.writeMarcXml(bibRecord);
+        if (StringUtils.isNotBlank(bibContent)) {
+            bibliographicEntity.setContent(bibContent.getBytes());
+        } else {
+            errorMessage.append("Bib Content cannot be empty").append(",");
+        }
+
+        boolean subFieldExistsFor245 = marcUtil.isSubFieldExists(bibRecord, "245");
+        if (!subFieldExistsFor245) {
+            errorMessage.append("Atleast one subfield should be there for 245 tag").append(",");
+        }
+        Leader leader = bibRecord.getLeader();
+        if (leader == null) {
+            errorMessage.append(" Leader field is missing").append(",");
+        } else {
+            String leaderValue = bibRecord.getLeader().toString();
+            if (!(StringUtils.isNotBlank(leaderValue) && leaderValue.length() == 24)) {
+                errorMessage.append("Leader Field value should be 24 characters").append(",");
+            }
+        }
+
+        if (owningInstitutionId != null && StringUtils.isNotBlank(owningInstitutionBibId)) {
+            BibliographicEntity existBibliographicEntity = bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibIdAndIsDeletedFalse(owningInstitutionId, owningInstitutionBibId);
+            if (null != existBibliographicEntity) {
+                exitsBibCount = 1;
+            }
+        }
+        List<ReportDataEntity> reportDataEntities = null;
+
+        if (errorMessage.toString().length() > 1) {
+            if (exitsBibCount == 0) {
+                failedBibCount = failedBibCount + 1;
+            }
+            reasonForFailureBib = errorMessage.toString();
+            reportDataEntities = dbReportUtil.generateBibFailureReportEntity(bibliographicEntity, bibRecord);
+            ReportDataEntity errorReportDataEntity = new ReportDataEntity();
+            errorReportDataEntity.setHeaderName(ScsbCommonConstants.ERROR_DESCRIPTION);
+            errorReportDataEntity.setHeaderValue(errorMessage.toString());
+            reportDataEntities.add(errorReportDataEntity);
+        } else if (exitsBibCount == 0) {
+            successBibCount = successBibCount + 1;
+        }
+
+        map.put(ScsbCommonConstants.FAILED_BIB_COUNT, failedBibCount);
+        map.put(ScsbCommonConstants.REASON_FOR_BIB_FAILURE, reasonForFailureBib);
+        map.put(ScsbCommonConstants.BIBLIOGRAPHICENTITY, bibliographicEntity);
+        map.put(ScsbCommonConstants.SUCCESS_BIB_COUNT, successBibCount);
+        map.put(ScsbCommonConstants.EXIST_BIB_COUNT, exitsBibCount);
+        return map;
     }
 }
