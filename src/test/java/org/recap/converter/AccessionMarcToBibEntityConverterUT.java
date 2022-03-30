@@ -7,6 +7,7 @@ import org.marc4j.marc.Record;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.recap.BaseTestCaseUT;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.accession.AccessionRequest;
@@ -18,10 +19,7 @@ import org.recap.model.marc.BibMarcRecord;
 import org.recap.model.marc.HoldingsMarcRecord;
 import org.recap.model.marc.ItemMarcRecord;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
-import org.recap.util.CommonUtil;
-import org.recap.util.DBReportUtil;
-import org.recap.util.MarcUtil;
-import org.recap.util.PropertyUtil;
+import org.recap.util.*;
 
 import java.io.File;
 import java.net.URL;
@@ -74,6 +72,10 @@ public class AccessionMarcToBibEntityConverterUT extends BaseTestCaseUT {
 
     @Mock
     PropertyUtil propertyUtil;
+
+    @InjectMocks
+    @Spy
+    AccessionUtil accessionUtil;
 
     @Test
     public void convert() throws Exception {
