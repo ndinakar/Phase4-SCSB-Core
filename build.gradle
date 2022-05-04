@@ -23,7 +23,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'jacoco'
 
 jar {
-	archivesBaseName = 'phase4-scsb-core'
+	archivesBaseName = 'scsb-core'
 	archiveVersion = '0.0.1-SNAPSHOT'
 }
 sourceCompatibility = 1.17
