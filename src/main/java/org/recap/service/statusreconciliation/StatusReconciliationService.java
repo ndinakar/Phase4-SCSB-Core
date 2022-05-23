@@ -87,7 +87,7 @@ public class StatusReconciliationService {
                             lasStatus = StringUtils.isNotBlank(modelItem.getItemStatus()) ? modelItem.getItemStatus().toUpperCase() : modelItem.getItemStatus();
                             boolean isRequestableNotRetrievable = commonUtil.checkIfImsItemStatusIsRequestableNotRetrievable(itemEntity.getImsLocationEntity().getImsLocationCode(), lasStatus);
                             if (isRequestableNotRetrievable) {
-                                refileCount = processMismatchStatus(statusReconciliationCSVRecordList, itemChangeLogEntityList, lasStatus, itemEntity, false, false, refileCount);
+                                refileCount = processMismatchStatus(statusReconciliationCSVRecordList, itemChangeLogEntityList, lasStatus, itemEntity, false, true, refileCount);
                             } else {
                                 boolean isAvailable = commonUtil.checkIfImsItemStatusIsAvailableOrNotAvailable(itemEntity.getImsLocationEntity().getImsLocationCode(), lasStatus, true);
                                 if (isAvailable) {
