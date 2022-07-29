@@ -1,7 +1,7 @@
 buildscript {
 	ext {
-		springBootVersion = '2.5.12'
-		set('springCloudVersion', "2020.0.5")
+		springBootVersion = '2.7.1'
+		set('springCloudVersion', "2021.0.3")
 	}
 	repositories {
 		mavenCentral()
@@ -14,7 +14,7 @@ buildscript {
 plugins {
 	id "org.sonarqube" version "3.3"
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'org.springframework.boot' version '2.5.12'
+	id 'org.springframework.boot' version '2.7.1'
 }
 
 apply plugin: 'java'
@@ -46,26 +46,25 @@ dependencies {
 	implementation('commons-beanutils:commons-beanutils:1.9.4')
 	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
 	implementation('commons-io:commons-io:2.11.0')
-	//implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
 	implementation('io.springfox:springfox-swagger-ui:3.0.0')
 	implementation('io.springfox:springfox-swagger2:3.0.0')
 	implementation('org.codehaus.jettison:jettison:1.4.1')
-	implementation('org.apache.camel.springboot:camel-spring-boot-starter:3.14.0')
-	implementation('org.apache.camel.springboot:camel-aws-s3-starter:3.7.6')
-	implementation('org.apache.camel:camel-aws-s3:3.7.6')
-	implementation('org.apache.camel:camel-activemq:3.14.0')
-	implementation('org.apache.camel:camel-core-engine:3.14.0')
-	implementation('org.apache.camel:camel-core:3.14.0')
-	implementation('org.apache.camel:camel-support:3.14.0')
-	implementation('org.apache.camel:camel-bindy:3.14.0')
-	implementation('org.apache.camel:camel-mail:3.14.0')
-	implementation('org.apache.camel:camel-ftp:3.14.0')
-	implementation('org.apache.camel:camel-jms:3.14.0')
-	implementation('org.apache.camel:camel-zipfile:3.14.0')
-	implementation('org.apache.activemq:activemq-camel:5.15.15')
-	implementation('org.apache.activemq:activemq-pool:5.15.15')
-	implementation('org.apache.activemq:activemq-broker:5.15.15')
-	implementation('org.apache.activemq:activemq-client:5.15.15')
+	implementation('org.apache.camel.springboot:camel-spring-boot-starter:3.18.0')
+	implementation('org.apache.camel.springboot:camel-aws-s3-starter:3.8.0')
+	implementation('org.apache.camel:camel-aws-s3:3.8.0')
+	implementation('org.apache.camel:camel-activemq:3.18.0')
+	implementation('org.apache.camel:camel-core-engine:3.18.0')
+	implementation('org.apache.camel:camel-core:3.18.0')
+	implementation('org.apache.camel:camel-support:3.18.0')
+	implementation('org.apache.camel:camel-bindy:3.18.0')
+	implementation('org.apache.camel:camel-mail:3.18.0')
+	implementation('org.apache.camel:camel-ftp:3.18.0')
+	implementation('org.apache.camel:camel-jms:3.18.0')
+	implementation('org.apache.camel:camel-zipfile:3.18.0')
+	implementation('org.apache.activemq:activemq-camel:5.16.5')
+	implementation('org.apache.activemq:activemq-pool:5.17.1')
+	implementation('org.apache.activemq:activemq-broker:5.17.1')
+	implementation('org.apache.activemq:activemq-client:5.17.1')
 	implementation('info.freelibrary:freelib-marc4j:2.6.12')
 	implementation('org.apache.poi:poi:5.1.0')
 	implementation('org.apache.camel:camel-zip-deflater:3.14.0');
@@ -89,6 +88,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
+	testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
 	testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 	testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.9'
 
