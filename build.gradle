@@ -12,7 +12,7 @@ buildscript {
 }
 
 plugins {
-	id "org.sonarqube" version "3.3"
+	id "org.sonarqube" version "3.4.0.2513"
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'org.springframework.boot' version '2.7.1'
 }
@@ -48,7 +48,7 @@ dependencies {
 	implementation('commons-io:commons-io:2.11.0')
 	implementation('io.springfox:springfox-swagger-ui:3.0.0')
 	implementation('io.springfox:springfox-swagger2:3.0.0')
-	implementation('org.codehaus.jettison:jettison:1.4.1')
+	implementation('org.codehaus.jettison:jettison:1.5.0')
 	implementation('org.apache.camel.springboot:camel-spring-boot-starter:3.18.0')
 	implementation('org.apache.camel.springboot:camel-aws-s3-starter:3.8.0')
 	implementation('org.apache.camel:camel-aws-s3:3.8.0')
@@ -66,11 +66,11 @@ dependencies {
 	implementation('org.apache.activemq:activemq-broker:5.17.1')
 	implementation('org.apache.activemq:activemq-client:5.17.1')
 	implementation('info.freelibrary:freelib-marc4j:2.6.12')
-	implementation('org.apache.poi:poi:5.1.0')
+	implementation('org.apache.poi:poi:5.2.2')
 	implementation('org.apache.camel:camel-zip-deflater:3.14.0');
 	implementation('org.apache.commons:commons-text:1.9');
 
-	implementation('org.apache.poi:poi-ooxml:5.1.0')
+	implementation('org.apache.poi:poi-ooxml:5.2.2')
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -99,7 +99,7 @@ dependencies {
 configurations.all {
 	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
 		if (details.requested.group == 'org.apache.logging.log4j') {
-			details.useVersion '2.17.0'
+			details.useVersion '2.18.0'
 		}
 	}
 }
@@ -127,7 +127,7 @@ jacocoTestReport {
 }
 
 jacoco {
-	toolVersion = "0.8.7"
+	toolVersion = "0.8.8"
 	reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
 }
 
