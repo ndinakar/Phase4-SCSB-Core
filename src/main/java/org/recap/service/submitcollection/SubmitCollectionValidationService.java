@@ -143,7 +143,7 @@ public class SubmitCollectionValidationService {
             holdingsIdList.add(bibliographicEntity.getHoldingsEntities().get(0).getOwningInstitutionHoldingsId());
             log.info("hold id--->{}",bibliographicEntity.getHoldingsEntities().get(0).getOwningInstitutionHoldingsId());
         }
-        holdingsIdUniqueList.addAll(holdingsIdList.stream().distinct().collect(Collectors.toList()));
+        holdingsIdUniqueList.addAll(holdingsIdList.stream().distinct().collect(Collectors.toCollection(ArrayList::new)));
         log.info("holdingsIdUniqueList size--->{}",holdingsIdUniqueList.size());
         log.info("holdingsIdUniqueList --->{}",holdingsIdUniqueList.stream().collect(Collectors.joining(",")));
         if(!holdingsIdUniqueList.isEmpty()){
@@ -163,7 +163,7 @@ public class SubmitCollectionValidationService {
         return (itemStatusCode.equalsIgnoreCase(ScsbConstants.ITEM_STATUS_AVAILABLE));
     }
 
-    private Map<String,ItemEntity> getItemIdEntityMap(BibliographicEntity bibliographicEntity){
+    private static Map<String,ItemEntity> getItemIdEntityMap(BibliographicEntity bibliographicEntity){
         Map<String,ItemEntity> itemEntityMap = new HashedMap();
         for(ItemEntity itemEntity:bibliographicEntity.getItemEntities()){
             itemEntityMap.put(itemEntity.getOwningInstitutionItemId(),itemEntity);
@@ -311,13 +311,13 @@ public class SubmitCollectionValidationService {
                 barcode, customerCode, owningInstitution, message.toString());
     }
 
-    private List<String> getMatchedOwningInstBibId(List<BibliographicEntity> incomingBibliographicEntityList,List<BibliographicEntity> existingBibliographicEntityList){
+    private static List<String> getMatchedOwningInstBibId(List<BibliographicEntity> incomingBibliographicEntityList,List<BibliographicEntity> existingBibliographicEntityList){
         List<String> incomingOwningInstBibIdList = incomingBibliographicEntityList.stream()
                 .map(BibliographicEntity::getOwningInstitutionBibId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
         List<String> existingOwningInstBibIdList = existingBibliographicEntityList.stream()
                 .map(BibliographicEntity::getOwningInstitutionBibId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
         List<String> matchedOwningInstBibId = new ArrayList<>();
         for(String incomingOwningInstBibId:incomingOwningInstBibIdList){
             if(existingOwningInstBibIdList.contains(incomingOwningInstBibId)){
@@ -365,7 +365,7 @@ public class SubmitCollectionValidationService {
         }
     }
 
-    private List<String> getOwnInstBibIdList(List<BibliographicEntity> bibliographicEntityList){
+    private static List<String> getOwnInstBibIdList(List<BibliographicEntity> bibliographicEntityList){
         List<String> ownInstBibIdList = new ArrayList<>();
         for(BibliographicEntity bibliographicEntity:bibliographicEntityList){
             ownInstBibIdList.add(bibliographicEntity.getOwningInstitutionBibId());

@@ -128,7 +128,7 @@ public class CommonUtil {
         failureSubmitCollectionReportInfoList.add(submitCollectionReportInfo);
     }
 
-    private String getExistingItemEntityOwningInstItemId(BibliographicEntity fetchedBibliographicEntity,ItemEntity incomingItemEntity){
+    private static String getExistingItemEntityOwningInstItemId(BibliographicEntity fetchedBibliographicEntity,ItemEntity incomingItemEntity){
         for(ItemEntity fetchedItemEntity:fetchedBibliographicEntity.getItemEntities()){
             if(fetchedItemEntity.getOwningInstitutionItemId().equals(incomingItemEntity.getOwningInstitutionItemId())){
                 return fetchedItemEntity.getHoldingsEntities().get(0).getOwningInstitutionHoldingsId();
@@ -493,7 +493,7 @@ public class CommonUtil {
         }
     }
 
-    private Map<Integer, Set<String>> getMapWithBibIdAndCgdCodes(List<Object[]> bibIdAndCgdIdByMatchingIdentityObjectList, Map<Integer, String> collectionGroupIdCodeMap) {
+    private static Map<Integer, Set<String>> getMapWithBibIdAndCgdCodes(List<Object[]> bibIdAndCgdIdByMatchingIdentityObjectList, Map<Integer, String> collectionGroupIdCodeMap) {
         Map<Integer, Set<String>> bibIdAndCgdCodesMap = new HashMap<>();
         for (Object[] bibIdAndCgdIdObj : bibIdAndCgdIdByMatchingIdentityObjectList) {
             Integer bibId = Integer.parseInt(bibIdAndCgdIdObj[0].toString());

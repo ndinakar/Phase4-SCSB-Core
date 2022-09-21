@@ -152,7 +152,7 @@ public class StatusReconciliationController {
         ItemStatusEntity itemStatusEntity = getItemStatusDetailsRepository().findByStatusCode(ScsbConstants.ITEM_STATUS_NOT_AVAILABLE);
         List<String> requestStatusCodes = Arrays.asList(ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, ScsbCommonConstants.REQUEST_STATUS_EDD, ScsbCommonConstants.REQUEST_STATUS_CANCELED, ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
         List<RequestStatusEntity> requestStatusEntityList = getRequestItemStatusDetailsRepository().findByRequestStatusCodeIn(requestStatusCodes);
-        List<Integer> requestStatusIds = requestStatusEntityList.stream().map(RequestStatusEntity::getId).collect(Collectors.toList());
+        List<Integer> requestStatusIds = requestStatusEntityList.stream().map(RequestStatusEntity::getId).collect(Collectors.toCollection(ArrayList::new));
         log.info("status reconciliation request ids : {} ", requestStatusIds);
         Map<String, Integer> itemCountAndStatusIdMap = getTotalPageCount(requestStatusIds, itemStatusEntity.getId());
         if (itemCountAndStatusIdMap.size() > 0) {

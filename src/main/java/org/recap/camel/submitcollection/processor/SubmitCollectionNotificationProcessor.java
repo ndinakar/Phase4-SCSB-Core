@@ -15,7 +15,7 @@ public class SubmitCollectionNotificationProcessor {
         producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION);
     }
 
-    private EmailPayLoad getEmailPayLoad(){
+    private static EmailPayLoad getEmailPayLoad(){
         EmailPayLoad emailPayLoad = new EmailPayLoad();
         emailPayLoad.setSubject("Sub collec not");
         emailPayLoad.setMessageDisplay("sucess started");

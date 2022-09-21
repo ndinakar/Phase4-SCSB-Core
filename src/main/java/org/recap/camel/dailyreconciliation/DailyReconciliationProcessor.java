@@ -242,7 +242,7 @@ public class DailyReconciliationProcessor {
 
     }
 
-    private void getCreatedAndLastUpdatedDate(XSSFCellStyle dateCellStyle, Date createdDate, Date lastUpdatedDate, XSSFRow row) {
+    private static void getCreatedAndLastUpdatedDate(XSSFCellStyle dateCellStyle, Date createdDate, Date lastUpdatedDate, XSSFRow row) {
         XSSFCell createdDateCell = row.createCell(5);
         createdDateCell.setCellValue(createdDate);
         createdDateCell.setCellStyle(dateCellStyle);
@@ -265,7 +265,7 @@ public class DailyReconciliationProcessor {
         return cellStyle;
     }
 
-    private void createHeader(XSSFSheet xssfSheet) {
+    private static void createHeader(XSSFSheet xssfSheet) {
         XSSFRow row = xssfSheet.createRow(0);
         row.createCell(0).setCellValue(ScsbConstants.DAILY_RR_REQUEST_ID);
         row.createCell(1).setCellValue(ScsbConstants.DAILY_RR_BARCODE);
@@ -281,7 +281,7 @@ public class DailyReconciliationProcessor {
         setColumnWidthForSheet(xssfSheet);
     }
 
-    private void setColumnWidthForSheet(XSSFSheet xssfSheet) {
+    private static void setColumnWidthForSheet(XSSFSheet xssfSheet) {
         xssfSheet.setColumnWidth(1, 4000);
         xssfSheet.setColumnWidth(2, 3000);
         xssfSheet.setColumnWidth(4, 3000);
@@ -434,7 +434,7 @@ public class DailyReconciliationProcessor {
         return sheet1LasStatus;
     }
 
-    private void createCellForNotEqualCells(XSSFWorkbook xssfWorkbook, XSSFRow row, String cellValue, int cellNum) {
+    private static void createCellForNotEqualCells(XSSFWorkbook xssfWorkbook, XSSFRow row, String cellValue, int cellNum) {
         if (StringUtils.isNotBlank(cellValue)){
             XSSFCell cell = row.createCell(cellNum);
             cell.setCellValue(cellValue);
@@ -448,7 +448,7 @@ public class DailyReconciliationProcessor {
         }
     }
 
-    private boolean checkCellIsNotEmpty(Cell cell){
+    private static boolean checkCellIsNotEmpty(Cell cell){
         boolean cellContainsValue = false;
         if (cell != null){
             cellContainsValue = true;

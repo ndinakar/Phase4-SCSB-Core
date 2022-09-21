@@ -452,7 +452,7 @@ public class AccessionUtil {
         return null;
     }
 
-    private HoldingsEntity copyHoldingsEntity(HoldingsEntity fetchHoldingsEntity, HoldingsEntity holdingsEntity){
+    private static HoldingsEntity copyHoldingsEntity(HoldingsEntity fetchHoldingsEntity, HoldingsEntity holdingsEntity){
         fetchHoldingsEntity.setContent(holdingsEntity.getContent());
         fetchHoldingsEntity.setLastUpdatedBy(holdingsEntity.getLastUpdatedBy());
         fetchHoldingsEntity.setLastUpdatedDate(holdingsEntity.getLastUpdatedDate());
@@ -465,7 +465,7 @@ public class AccessionUtil {
         return fetchHoldingsEntity;
     }
 
-    private void processItems(List<ItemEntity> fetchItemsEntities, List<ItemEntity> itemsEntities) {
+    private static void processItems(List<ItemEntity> fetchItemsEntities, List<ItemEntity> itemsEntities) {
         for (Iterator<ItemEntity> iItems = itemsEntities.iterator(); iItems.hasNext();) {
             ItemEntity itemEntity = iItems.next();
             for (ItemEntity fetchItem : fetchItemsEntities) {
@@ -478,7 +478,7 @@ public class AccessionUtil {
         fetchItemsEntities.addAll(itemsEntities);
     }
 
-    private ItemEntity copyItemEntity(ItemEntity fetchItemEntity, ItemEntity itemEntity){
+    private static ItemEntity copyItemEntity(ItemEntity fetchItemEntity, ItemEntity itemEntity){
         fetchItemEntity.setBarcode(itemEntity.getBarcode());
         fetchItemEntity.setLastUpdatedBy(itemEntity.getLastUpdatedBy());
         fetchItemEntity.setLastUpdatedDate(itemEntity.getLastUpdatedDate());
@@ -585,7 +585,8 @@ public class AccessionUtil {
         producerTemplate.sendBody(ScsbConstants.ACCESSION_REPORT_Q, reportEntity);
     }
 
-    private ReportEntity getReportEntity(String owningInstitution){
+
+    private static ReportEntity getReportEntity(String owningInstitution){
         ReportEntity reportEntity = new ReportEntity();
         reportEntity.setFileName(ScsbCommonConstants.ACCESSION_REPORT);
         reportEntity.setType(ScsbConstants.ONGOING_ACCESSION_REPORT);

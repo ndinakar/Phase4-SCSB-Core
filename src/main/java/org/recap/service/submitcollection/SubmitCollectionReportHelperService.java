@@ -68,7 +68,7 @@ public class SubmitCollectionReportHelperService {
         }
     }
 
-    private void appendCompleteStatus(ItemEntity itemEntity, StringBuilder sbMessage) {
+    private static void appendCompleteStatus(ItemEntity itemEntity, StringBuilder sbMessage) {
         if (itemEntity.getCatalogingStatus() != null && itemEntity.getCatalogingStatus().equals(ScsbCommonConstants.INCOMPLETE_STATUS)
                 && StringUtils.isEmpty(itemEntity.getUseRestrictions())) {
             sbMessage.append("-").append(ScsbConstants.RECORD_INCOMPLETE).append(ScsbConstants.USE_RESTRICTION_UNAVAILABLE);
@@ -123,7 +123,7 @@ public class SubmitCollectionReportHelperService {
     }
 
 
-    private Map<String,String> getBarcodeOwningInstitutionBibIdMap(BibliographicEntity bibliographicEntity){
+    private static Map<String,String> getBarcodeOwningInstitutionBibIdMap(BibliographicEntity bibliographicEntity){
         Map<String,String> owningInstitutionBibIdBarcodeMap = new HashMap<>();
         for(ItemEntity itemEntity:bibliographicEntity.getItemEntities()){
             owningInstitutionBibIdBarcodeMap.put(itemEntity.getBarcode(),bibliographicEntity.getOwningInstitutionBibId());
@@ -171,7 +171,7 @@ public class SubmitCollectionReportHelperService {
         submitCollectionReportInfoList.add(submitCollectionReportInfo);
     }
 
-    private Map<String,ItemEntity> getBarcodeItemEntityMap(List<ItemEntity> itemEntityList){
+    private static Map<String,ItemEntity> getBarcodeItemEntityMap(List<ItemEntity> itemEntityList){
         Map<String,ItemEntity> barcodeItemEntityMap = new HashedMap();
         for(ItemEntity itemEntity:itemEntityList){
             barcodeItemEntityMap.put(itemEntity.getBarcode(),itemEntity);
@@ -179,7 +179,7 @@ public class SubmitCollectionReportHelperService {
         return  barcodeItemEntityMap;
     }
 
-    private Map<String,ItemEntity> getOwningInstitutionItemIdItemEntityMap(List<ItemEntity> itemEntityList){
+    private static Map<String,ItemEntity> getOwningInstitutionItemIdItemEntityMap(List<ItemEntity> itemEntityList){
         Map<String,ItemEntity> owningInstitutionItemIdItemEntityMap = new HashedMap();
         for(ItemEntity itemEntity:itemEntityList){
             owningInstitutionItemIdItemEntityMap.put(itemEntity.getOwningInstitutionItemId(),itemEntity);
@@ -355,7 +355,7 @@ public class SubmitCollectionReportHelperService {
         }
     }
 
-    private Map<String,ItemEntity> getItemIdEntityMap(BibliographicEntity bibliographicEntity){
+    private static Map<String,ItemEntity> getItemIdEntityMap(BibliographicEntity bibliographicEntity){
         Map<String,ItemEntity> itemEntityMap = new HashedMap();
         for(ItemEntity itemEntity:bibliographicEntity.getItemEntities()){
             itemEntityMap.put(itemEntity.getOwningInstitutionItemId(),itemEntity);
@@ -363,7 +363,7 @@ public class SubmitCollectionReportHelperService {
         return itemEntityMap;
     }
 
-    private ItemEntity getMismatchedItemEntity(ItemEntity incomingItemEntity, Map<String,ItemEntity> fetchedOwningItemIdBarcodeMap){
+    private static ItemEntity getMismatchedItemEntity(ItemEntity incomingItemEntity, Map<String,ItemEntity> fetchedOwningItemIdBarcodeMap){
         for(Map.Entry<String,ItemEntity> fetchedOwningItemIdBarcodeMapEntry:fetchedOwningItemIdBarcodeMap.entrySet()){
             ItemEntity fetchedItemEntity = fetchedOwningItemIdBarcodeMapEntry.getValue();
             if(incomingItemEntity.getBarcode().equals(fetchedItemEntity.getBarcode())){
@@ -490,7 +490,7 @@ public class SubmitCollectionReportHelperService {
         return message.toString();
     }
 
-    private boolean isSuccessMessageAdded(String barcode, StringBuilder message, List<SubmitCollectionReportInfo> successSubmitCollectionReportInfoList) {
+    private static boolean isSuccessMessageAdded(String barcode, StringBuilder message, List<SubmitCollectionReportInfo> successSubmitCollectionReportInfoList) {
         boolean isSuccessMessageAdded = false;
         for(SubmitCollectionReportInfo submitCollectionReportInfo:successSubmitCollectionReportInfoList){ //Added to update the success message with added bibs for bound-with items
             if(submitCollectionReportInfo.getItemBarcode().equals(barcode)){
@@ -501,7 +501,7 @@ public class SubmitCollectionReportHelperService {
         return isSuccessMessageAdded;
     }
 
-    private List<String> getNewlyAddedOwningInstBibIdList(Map<String, BibliographicEntity> incomingBibliographicEntityMap, Map<String, BibliographicEntity> existingBibliographicEntityMap) {
+    private static List<String> getNewlyAddedOwningInstBibIdList(Map<String, BibliographicEntity> incomingBibliographicEntityMap, Map<String, BibliographicEntity> existingBibliographicEntityMap) {
         List<String> newlyAddedOwningInstBibIdList = new ArrayList<>();
         for(Map.Entry<String,BibliographicEntity> incomingBibliographicEntityMapEntry:incomingBibliographicEntityMap.entrySet()){
             BibliographicEntity incomingBibliographicEntity = incomingBibliographicEntityMapEntry.getValue();
@@ -512,7 +512,7 @@ public class SubmitCollectionReportHelperService {
         return newlyAddedOwningInstBibIdList;
     }
 
-    private List<String> getUnlinkedOwningInstBibIdList(Map<String, BibliographicEntity> incomingBibliographicEntityMap, Map<String, BibliographicEntity> existingBibliographicEntityMap) {
+    private static List<String> getUnlinkedOwningInstBibIdList(Map<String, BibliographicEntity> incomingBibliographicEntityMap, Map<String, BibliographicEntity> existingBibliographicEntityMap) {
         List<String> unlinkedOwningInstBibIdList = new ArrayList<>();
         for(Map.Entry<String,BibliographicEntity> existingBibliographicEntityMapEntry:existingBibliographicEntityMap.entrySet()){
             BibliographicEntity existingBibliographicEntity = existingBibliographicEntityMapEntry.getValue();

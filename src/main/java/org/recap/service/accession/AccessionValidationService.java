@@ -141,7 +141,7 @@ public class AccessionValidationService {
         return isValid;
     }
 
-    private StringBuilder getOwningInstitutionBibIds(List<BibliographicEntity> bibliographicEntityList){
+    private static StringBuilder getOwningInstitutionBibIds(List<BibliographicEntity> bibliographicEntityList){
         StringBuilder bibIdsStringBuilder = new StringBuilder();
         for(BibliographicEntity bibliographicEntity:bibliographicEntityList){
             if (bibIdsStringBuilder.length()>0) {

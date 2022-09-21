@@ -150,7 +150,7 @@ public class SubmitCollectionService {
         return submitCollectionResponseList;
     }
 
-    private void setResponse(String reponse, List<SubmitCollectionResponse> submitColletionResponseList) {
+    private static void setResponse(String reponse, List<SubmitCollectionResponse> submitColletionResponseList) {
         if(reponse != null){
             SubmitCollectionResponse submitCollectionResponse = new SubmitCollectionResponse();
             submitCollectionResponse.setMessage(reponse);
@@ -158,7 +158,7 @@ public class SubmitCollectionService {
         }
     }
 
-    private List<SubmitCollectionResponse> getResponseMessage(Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<SubmitCollectionResponse> submitColletionResponseList) {
+    private static List<SubmitCollectionResponse> getResponseMessage(Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<SubmitCollectionResponse> submitColletionResponseList) {
         for (Map.Entry<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMapEntry : submitCollectionReportInfoMap.entrySet()) {
             List<SubmitCollectionReportInfo> submitCollectionReportInfoList = submitCollectionReportInfoMapEntry.getValue();
             for (SubmitCollectionReportInfo submitCollectionReportInfo : submitCollectionReportInfoList) {
@@ -345,7 +345,7 @@ public class SubmitCollectionService {
         }
     }
 
-    private void setSubmitCollectionResponse(SubmitCollectionReportInfo submitCollectionReportInfo, List<SubmitCollectionResponse> submitColletionResponseList, SubmitCollectionResponse submitCollectionResponse){
+    private static void setSubmitCollectionResponse(SubmitCollectionReportInfo submitCollectionReportInfo, List<SubmitCollectionResponse> submitColletionResponseList, SubmitCollectionResponse submitCollectionResponse){
         submitCollectionResponse.setItemBarcode(submitCollectionReportInfo.getItemBarcode());
         submitCollectionResponse.setMessage(submitCollectionReportInfo.getMessage());
         submitColletionResponseList.add(submitCollectionResponse);
@@ -459,7 +459,7 @@ public class SubmitCollectionService {
         this.restTemplate = restTemplate;
     }
 
-    private Map<String,List<SubmitCollectionReportInfo>> getSubmitCollectionReportMap(){
+    private static Map<String,List<SubmitCollectionReportInfo>> getSubmitCollectionReportMap(){
         List<SubmitCollectionReportInfo> submitCollectionSuccessInfoList = new ArrayList<>();
         List<SubmitCollectionReportInfo> submitCollectionFailureInfoList = new ArrayList<>();
         List<SubmitCollectionReportInfo> submitCollectionRejectionInfoList = new ArrayList<>();

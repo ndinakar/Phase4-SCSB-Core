@@ -233,11 +233,11 @@ public class SubmitCollectionDAOService {
         return updatedBibliographicEntityList;
     }
 
-    private boolean isSingleVolumeToBoundWith(Integer existingBibCount,Integer incomingBibCountForBoundWithItem){
+    private static boolean isSingleVolumeToBoundWith(Integer existingBibCount,Integer incomingBibCountForBoundWithItem){
         return (existingBibCount == 1 && (incomingBibCountForBoundWithItem > existingBibCount));
     }
 
-    private boolean isBoundWithBibIncreased(Integer existingBibCount,Integer incomingBibCountForBoundWithItem){
+    private static boolean isBoundWithBibIncreased(Integer existingBibCount,Integer incomingBibCountForBoundWithItem){
         return (existingBibCount > 1 && (incomingBibCountForBoundWithItem > existingBibCount));
     }
 
@@ -664,7 +664,7 @@ public class SubmitCollectionDAOService {
         return savedBibliographicEntity;
     }
 
-    private void updateImsLocationForItem(BibliographicEntity bibliographicEntityToSave, ImsLocationEntity dummyRecordItemStatusEntity) {
+    private static void updateImsLocationForItem(BibliographicEntity bibliographicEntityToSave, ImsLocationEntity dummyRecordItemStatusEntity) {
         for(ItemEntity itemEntity:bibliographicEntityToSave.getItemEntities()){
             if(dummyRecordItemStatusEntity != null){
                 itemEntity.setImsLocationId(dummyRecordItemStatusEntity.getId());
@@ -773,7 +773,7 @@ public class SubmitCollectionDAOService {
         return true;
     }
 
-    private boolean isBoundWithItem(BibliographicEntity bibliographicEntity,Set<String> processedBarcodeSet){
+    private static boolean isBoundWithItem(BibliographicEntity bibliographicEntity,Set<String> processedBarcodeSet){
         for(String barcode:processedBarcodeSet){
             for(ItemEntity itemEntity:bibliographicEntity.getItemEntities()){
                 if(itemEntity.getBarcode().equals(barcode)){
@@ -784,7 +784,7 @@ public class SubmitCollectionDAOService {
         return false;
     }
 
-    private void setProcessedBarcode(BibliographicEntity bibliographicEntity,Set<String> processedBarcodeSet){
+    private static void setProcessedBarcode(BibliographicEntity bibliographicEntity,Set<String> processedBarcodeSet){
         for(ItemEntity itemEntity:bibliographicEntity.getItemEntities()){
             processedBarcodeSet.add(itemEntity.getBarcode());
         }
@@ -984,11 +984,11 @@ public class SubmitCollectionDAOService {
         }
     }
 
-    private Map<String,HoldingsEntity> getOwningInstHoldingsIdHoldingsEntityMap(List<HoldingsEntity> holdingsEntityList){
+    private static Map<String,HoldingsEntity> getOwningInstHoldingsIdHoldingsEntityMap(List<HoldingsEntity> holdingsEntityList){
         return holdingsEntityList.stream().collect((Collectors.toMap(HoldingsEntity::getOwningInstitutionHoldingsId,holdingsEntity -> holdingsEntity)));
     }
 
-    private boolean isDeAccessionedItem(ItemEntity fetchedItemEntity){
+    private static boolean isDeAccessionedItem(ItemEntity fetchedItemEntity){
         return fetchedItemEntity.isDeleted();
     }
 
@@ -1019,7 +1019,7 @@ public class SubmitCollectionDAOService {
         return fetchBibliographicEntity;
     }
 
-    private Map<String,HoldingsEntity> getOwningInstHoldingIdHoldingsEntityMap(List<HoldingsEntity> holdingsEntityList){
+    private static Map<String,HoldingsEntity> getOwningInstHoldingIdHoldingsEntityMap(List<HoldingsEntity> holdingsEntityList){
         Map<String,HoldingsEntity> owningInstHoldingIdHoldingsEntityMap = new HashedMap();
         for(HoldingsEntity holdingsEntity:holdingsEntityList){
             owningInstHoldingIdHoldingsEntityMap.put(holdingsEntity.getOwningInstitutionHoldingsId(),holdingsEntity);
@@ -1079,7 +1079,7 @@ public class SubmitCollectionDAOService {
         return itemBarcodeList;
     }
 
-    private Set<String> getBarcodeSetFromBoundWithBibliographicEntity(List<BoundWithBibliographicEntityObject> boundWithBibliographicEntityObjectList){
+    private static Set<String> getBarcodeSetFromBoundWithBibliographicEntity(List<BoundWithBibliographicEntityObject> boundWithBibliographicEntityObjectList){
         Set<String> itemBarcodeList = new HashSet<>();
         for(BoundWithBibliographicEntityObject boundWithBibliographicEntityObject :boundWithBibliographicEntityObjectList){
             for (BibliographicEntity bibliographicEntity: boundWithBibliographicEntityObject.getBibliographicEntityList()){
@@ -1123,7 +1123,7 @@ public class SubmitCollectionDAOService {
         return hasCgdShared;
     }
 
-    private void manageHoldingWithItem(HoldingsEntity incomingHoldingsEntity, HoldingsEntity fetchedHoldingsEntity) {
+    private static void manageHoldingWithItem(HoldingsEntity incomingHoldingsEntity, HoldingsEntity fetchedHoldingsEntity) {
         List<ItemEntity> fetchedItemEntityList = fetchedHoldingsEntity.getItemEntities();
         List<ItemEntity> itemEntityList = incomingHoldingsEntity.getItemEntities();
         if (null != itemEntityList && null != fetchedItemEntityList) {
@@ -1137,7 +1137,7 @@ public class SubmitCollectionDAOService {
         }
     }
 
-    private HoldingsEntity copyHoldingsEntity(HoldingsEntity fetchHoldingsEntity, HoldingsEntity holdingsEntity, boolean isForDummyRecord){
+    private static HoldingsEntity copyHoldingsEntity(HoldingsEntity fetchHoldingsEntity, HoldingsEntity holdingsEntity, boolean isForDummyRecord){
         fetchHoldingsEntity.setContent(holdingsEntity.getContent());
         fetchHoldingsEntity.setLastUpdatedBy(holdingsEntity.getLastUpdatedBy());
         fetchHoldingsEntity.setLastUpdatedDate(holdingsEntity.getLastUpdatedDate());
@@ -1147,7 +1147,7 @@ public class SubmitCollectionDAOService {
         return fetchHoldingsEntity;
     }
 
-    private boolean isBoundWithItem(ItemEntity itemEntity){
+    private static boolean isBoundWithItem(ItemEntity itemEntity){
         return itemEntity.getBibliographicEntities().size() > 1;
     }
 
@@ -1156,7 +1156,7 @@ public class SubmitCollectionDAOService {
         repositoryService.getItemChangeLogDetailsRepository().saveAll(itemChangeLogEntityList);
     }
 
-    private List<ItemChangeLogEntity> getItemChangeLogEntities(String operationType, String message, List<ItemEntity> itemEntityList) {
+    private static List<ItemChangeLogEntity> getItemChangeLogEntities(String operationType, String message, List<ItemEntity> itemEntityList) {
         List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
         for (ItemEntity itemEntity : itemEntityList) {
             ItemChangeLogEntity itemChangeLogEntity = new ItemChangeLogEntity();
@@ -1170,11 +1170,11 @@ public class SubmitCollectionDAOService {
         return itemChangeLogEntityList;
     }
 
-    private List<ItemChangeLogEntity> prepareItemChangeLogEntity(String operationType, String message, List<ItemEntity> itemEntityList) {
+    private static List<ItemChangeLogEntity> prepareItemChangeLogEntity(String operationType, String message, List<ItemEntity> itemEntityList) {
         return getItemChangeLogEntities(operationType, message, itemEntityList);
     }
 
-    private ItemChangeLogEntity prepareItemChangeLogEntity(String operationType, String message, Integer itemId) {
+    private static ItemChangeLogEntity prepareItemChangeLogEntity(String operationType, String message, Integer itemId) {
         ItemChangeLogEntity itemChangeLogEntity = new ItemChangeLogEntity();
         itemChangeLogEntity.setOperationType(ScsbConstants.SUBMIT_COLLECTION);
         itemChangeLogEntity.setUpdatedBy(operationType);
@@ -1189,7 +1189,7 @@ public class SubmitCollectionDAOService {
         repositoryService.getItemChangeLogDetailsRepository().saveAll(itemChangeLogEntityList);
     }
 
-    private List<ItemChangeLogEntity> prepareItemChangeLogEntitiesForCgdUpdates(List<ItemEntity> cgdUpdatedItemEntityList, Map<String, String> cgdUpdatedItemMessageMap) {
+    private static List<ItemChangeLogEntity> prepareItemChangeLogEntitiesForCgdUpdates(List<ItemEntity> cgdUpdatedItemEntityList, Map<String, String> cgdUpdatedItemMessageMap) {
         List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
         for (ItemEntity itemEntity : cgdUpdatedItemEntityList) {
             ItemChangeLogEntity itemChangeLogEntity = new ItemChangeLogEntity();
@@ -1203,15 +1203,15 @@ public class SubmitCollectionDAOService {
         return itemChangeLogEntityList;
     }
 
-    private void updateCustomerCode(BibliographicEntity dummyBibliographicEntity, BibliographicEntity updatedBibliographicEntity) {
+    private static void updateCustomerCode(BibliographicEntity dummyBibliographicEntity, BibliographicEntity updatedBibliographicEntity) {
         updatedBibliographicEntity.getItemEntities().get(0).setCustomerCode(dummyBibliographicEntity.getItemEntities().get(0).getCustomerCode());
     }
 
-    private void updateImsLocationId(BibliographicEntity dummyBibliographicEntity, BibliographicEntity updatedBibliographicEntity) {
+    private static void updateImsLocationId(BibliographicEntity dummyBibliographicEntity, BibliographicEntity updatedBibliographicEntity) {
         updatedBibliographicEntity.getItemEntities().get(0).setImsLocationId(dummyBibliographicEntity.getItemEntities().get(0).getImsLocationId());
     }
 
-    private BibliographicEntity updateCatalogingStatusForItem(BibliographicEntity bibliographicEntity) {
+    private static BibliographicEntity updateCatalogingStatusForItem(BibliographicEntity bibliographicEntity) {
         for(ItemEntity itemEntity:bibliographicEntity.getItemEntities()){
             if(itemEntity.getUseRestrictions()==null || itemEntity.getCollectionGroupId()==null){
                 itemEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
@@ -1237,7 +1237,7 @@ public class SubmitCollectionDAOService {
         }
     }
 
-    private boolean isNonCompleteBib(BibliographicEntity bibliographicEntity){
+    private static boolean isNonCompleteBib(BibliographicEntity bibliographicEntity){
         boolean isNotComplete = true;
         if(bibliographicEntity.getCatalogingStatus().equals(ScsbCommonConstants.COMPLETE_STATUS)){
             isNotComplete = false;
@@ -1245,7 +1245,7 @@ public class SubmitCollectionDAOService {
         return isNotComplete;
     }
 
-    private BibliographicEntity copyBibliographicEntity(BibliographicEntity fetchBibliographicEntity, BibliographicEntity bibliographicEntity){
+    private static BibliographicEntity copyBibliographicEntity(BibliographicEntity fetchBibliographicEntity, BibliographicEntity bibliographicEntity){
         fetchBibliographicEntity.setContent(bibliographicEntity.getContent());
         fetchBibliographicEntity.setLastUpdatedBy(bibliographicEntity.getLastUpdatedBy());
         fetchBibliographicEntity.setLastUpdatedDate(bibliographicEntity.getLastUpdatedDate());
@@ -1338,7 +1338,7 @@ public class SubmitCollectionDAOService {
         }
     }
 
-    private boolean checkIsCGDProtected(BibliographicEntity bibliographicEntity) {
+    private static boolean checkIsCGDProtected(BibliographicEntity bibliographicEntity) {
         boolean isCGDProtected = false;
         if(bibliographicEntity != null && bibliographicEntity.getHoldingsEntities() != null) {
             for (HoldingsEntity holdingsEntity : bibliographicEntity.getHoldingsEntities()) {

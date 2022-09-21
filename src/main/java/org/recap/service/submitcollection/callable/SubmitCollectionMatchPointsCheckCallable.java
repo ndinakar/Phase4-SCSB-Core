@@ -118,7 +118,7 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
         log.debug(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, bibIds.size(), bibIds);
     }
 
-    private void putToResponseMap(Integer maQualifier, Set<Integer> bibIds, Map<Integer, Set<Integer>> responseMap) {
+    private static void putToResponseMap(Integer maQualifier, Set<Integer> bibIds, Map<Integer, Set<Integer>> responseMap) {
         if (responseMap.containsKey(maQualifier)) {
             responseMap.get(maQualifier).addAll(bibIds);
         } else {

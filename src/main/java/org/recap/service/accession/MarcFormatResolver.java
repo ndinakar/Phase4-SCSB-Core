@@ -74,7 +74,7 @@ public class MarcFormatResolver extends AccessionResolverAbstract {
         return getItemEntityFormMarcRecord((List<Record>) object, owningInstitutionId);
     }
 
-    private boolean isBoundWithItemForMarcRecord(List<Record> recordList) {
+    private static boolean isBoundWithItemForMarcRecord(List<Record> recordList) {
         return recordList.size() > 1;
     }
 

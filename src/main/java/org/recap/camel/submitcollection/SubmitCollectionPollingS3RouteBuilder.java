@@ -129,7 +129,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
         }
     }
 
-    private String getNextRouteId(String currentInstitution, String nextInstitution, String cdgType) {
+    private static String getNextRouteId(String currentInstitution, String nextInstitution, String cdgType) {
         if (ScsbConstants.PROTECTED.equalsIgnoreCase(cdgType)) {
             return currentInstitution + ScsbConstants.CGD_NOT_PROTECTED_ROUTE_ID;
         } else if (StringUtils.isNotBlank(nextInstitution)) {

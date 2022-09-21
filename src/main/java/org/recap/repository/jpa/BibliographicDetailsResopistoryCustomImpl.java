@@ -21,12 +21,12 @@ public class BibliographicDetailsResopistoryCustomImpl implements BibliographicD
         return entityManager.merge(entity);
     }
 
-    private <S extends BibliographicEntity> void attachExistingHoldingAndItemId(S entity, ItemEntity fetchedItemEntity) {
+    private static <S extends BibliographicEntity> void attachExistingHoldingAndItemId(S entity, ItemEntity fetchedItemEntity) {
         attachExistingHoldingId(entity, fetchedItemEntity);
         attachExistingItemId(entity, fetchedItemEntity);
     }
 
-    private <S extends BibliographicEntity> void attachExistingItemId(S entity, ItemEntity fetchedItemEntity) {
+    private static  <S extends BibliographicEntity> void attachExistingItemId(S entity, ItemEntity fetchedItemEntity) {
         Optional<ItemEntity> itemEntityToAttach = entity.getItemEntities()
                 .stream()
                 .filter(itemEntity -> itemEntity.getId() == null)
@@ -36,7 +36,7 @@ public class BibliographicDetailsResopistoryCustomImpl implements BibliographicD
         }
     }
 
-    private <S extends BibliographicEntity> void attachExistingHoldingId(S entity, ItemEntity fetchedItemEntity) {
+    private static <S extends BibliographicEntity> void attachExistingHoldingId(S entity, ItemEntity fetchedItemEntity) {
         Optional<HoldingsEntity> holdingsEntityToAttach = entity.getHoldingsEntities()
                 .stream()
                 .filter(holdingsEntity -> holdingsEntity.getId() == null)
