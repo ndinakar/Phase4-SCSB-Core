@@ -7,6 +7,7 @@ import org.recap.service.common.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class SubmitCollectionHelperService {
         }
     }
 
-    private boolean isHoldingsExist(BibliographicEntity bibliographicEntity,String owningInstitutionHoldingsId){
+    private static boolean isHoldingsExist(BibliographicEntity bibliographicEntity,String owningInstitutionHoldingsId){
         for(HoldingsEntity holdingsEntity:bibliographicEntity.getHoldingsEntities()){
             if(owningInstitutionHoldingsId.equals(holdingsEntity.getOwningInstitutionHoldingsId())){
                 return true;
@@ -44,7 +45,7 @@ public class SubmitCollectionHelperService {
         return false;
     }
 
-    private void attachItemToHolding(BibliographicEntity existingBibliographicEntity, BibliographicEntity incomingBibliographicEntity){
+    private static void attachItemToHolding(BibliographicEntity existingBibliographicEntity, BibliographicEntity incomingBibliographicEntity){
         existingBibliographicEntity.getHoldingsEntities().add(incomingBibliographicEntity.getHoldingsEntities().get(0));
     }
 
@@ -63,7 +64,7 @@ public class SubmitCollectionHelperService {
     }
 
     public String getBibliographicIdsInString(List<BibliographicEntity> bibliographicEntityList){
-        List<String> owningInstitutionBibIdList = bibliographicEntityList.stream().map(BibliographicEntity::getOwningInstitutionBibId).collect(Collectors.toList());
+        List<String> owningInstitutionBibIdList = bibliographicEntityList.stream().map(BibliographicEntity::getOwningInstitutionBibId).collect(Collectors.toCollection(ArrayList::new));
         return owningInstitutionBibIdList.stream().collect(Collectors.joining(","));
     }
 

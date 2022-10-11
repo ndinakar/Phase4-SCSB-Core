@@ -132,7 +132,7 @@ public class StatusReconciliationService {
         StatusReconciliationCSVRecord statusReconciliationCSVRecord = new StatusReconciliationCSVRecord();
         List<String> requestStatusCodes = Arrays.asList(ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, ScsbCommonConstants.REQUEST_STATUS_EDD, ScsbCommonConstants.REQUEST_STATUS_CANCELED, ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
         List<RequestStatusEntity> requestStatusEntityList = requestItemStatusDetailsRepository.findByRequestStatusCodeIn(requestStatusCodes);
-        List<Integer> requestStatusIds = requestStatusEntityList.stream().map(RequestStatusEntity::getId).collect(Collectors.toList());
+        List<Integer> requestStatusIds = requestStatusEntityList.stream().map(RequestStatusEntity::getId).collect(Collectors.toCollection(ArrayList::new));
         List<Integer> requestid = requestItemDetailsRepository.getRequestItemEntitiesBasedOnDayLimit(itemEntity.getId(), requestStatusIds, statusReconciliationDayLimit);
         List<RequestItemEntity> requestItemEntityList = requestItemDetailsRepository.findByIdIn(requestid);
         List<String> barcodeList = new ArrayList<>();
@@ -234,7 +234,7 @@ public class StatusReconciliationService {
         return statusReconciliationCSVRecord;
     }
 
-    private ItemChangeLogEntity saveItemChangeLogEntity(Integer requestId, String barcode) {
+    private static ItemChangeLogEntity saveItemChangeLogEntity(Integer requestId, String barcode) {
         ItemChangeLogEntity itemChangeLogEntity = new ItemChangeLogEntity();
         String notes = "ItemBarcode:" + barcode + " , " + "ItemAvailabilityStatusChange" + ScsbConstants.REQUEST_ITEM_AVAILABILITY_STATUS_DATA_ROLLBACK;
         itemChangeLogEntity.setUpdatedBy(ScsbConstants.GUEST_USER);

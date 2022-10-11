@@ -126,7 +126,7 @@ public class SCSBFormatResolver extends AccessionResolverAbstract {
         return null;
     }
 
-    private boolean isBoundWithItemForScsbRecord(List<BibRecord> bibRecordList) {
+    private static boolean isBoundWithItemForScsbRecord(List<BibRecord> bibRecordList) {
         return bibRecordList.size() > 1;
     }
 }

@@ -101,7 +101,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         }
     }
 
-    private List<BibliographicEntity> splitBibWithOneItem(List<BibliographicEntity> bibliographicEntityList) {
+    private static List<BibliographicEntity> splitBibWithOneItem(List<BibliographicEntity> bibliographicEntityList) {
         List<BibliographicEntity> splitedBibliographicEntityList = new ArrayList<>();
         for (BibliographicEntity bibliographicEntity : bibliographicEntityList) {
             if (null != bibliographicEntity.getItemEntities() && bibliographicEntity.getItemEntities().size() > 1) {
@@ -174,7 +174,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         return null;
     }
 
-    private void prepareBoundWithAndNonBoundWithList(List<BibliographicEntity> validBibliographicEntityList, List<BibliographicEntity> nonBoundWithBibliographicEntityList
+    private static void prepareBoundWithAndNonBoundWithList(List<BibliographicEntity> validBibliographicEntityList, List<BibliographicEntity> nonBoundWithBibliographicEntityList
             , List<BibliographicEntity> boundwithBibliographicEntityList) {
         List<BarcodeBibliographicEntityObject> barcodeBibliographicEntityObjectList = getBarcodeOwningInstitutionBibIdObjectList(validBibliographicEntityList);
         if(!barcodeBibliographicEntityObjectList.isEmpty()) {
@@ -194,7 +194,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         }
     }
 
-    private List<NonBoundWithBibliographicEntityObject> prepareNonBoundWithBibliographicEntity(Map<String, List<BibliographicEntity>> groupByOwnInstBibIdBibliographicEntityListMap) {
+    private static List<NonBoundWithBibliographicEntityObject> prepareNonBoundWithBibliographicEntity(Map<String, List<BibliographicEntity>> groupByOwnInstBibIdBibliographicEntityListMap) {
         List<NonBoundWithBibliographicEntityObject> nonBoundWithBibliographicEntityObjectList = new ArrayList<>();
         for (Map.Entry<String, List<BibliographicEntity>> groupByOwnInstBibIdBibliographicEntityListMapEntry : groupByOwnInstBibIdBibliographicEntityListMap.entrySet()) {
             NonBoundWithBibliographicEntityObject nonBoundWithBibliographicEntityObject = new NonBoundWithBibliographicEntityObject();
@@ -205,7 +205,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         return nonBoundWithBibliographicEntityObjectList;
     }
 
-    private List<BoundWithBibliographicEntityObject> prepareBoundWithBibliographicEntityObjectList(Map<String, List<BibliographicEntity>> groupByBarcodeBibliographicEntityListMap) {
+    private static List<BoundWithBibliographicEntityObject> prepareBoundWithBibliographicEntityObjectList(Map<String, List<BibliographicEntity>> groupByBarcodeBibliographicEntityListMap) {
         List<BoundWithBibliographicEntityObject> boundWithBibliographicEntityObjectList = new ArrayList<>();
         for (Map.Entry<String, List<BibliographicEntity>> groupByBarcodeBibliographicEntityListMapEntry : groupByBarcodeBibliographicEntityListMap.entrySet()) {
             BoundWithBibliographicEntityObject boundWithBibliographicEntityObject = new BoundWithBibliographicEntityObject();
@@ -297,7 +297,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         }
     }
 
-    private void setUpdatedDummyRecordOwningInstBibId(List<BibliographicEntity> bibliographicEntityList, Set<String> updatedDummyRecordOwnInstBibIdSet) {
+    private static void setUpdatedDummyRecordOwningInstBibId(List<BibliographicEntity> bibliographicEntityList, Set<String> updatedDummyRecordOwnInstBibIdSet) {
         for (BibliographicEntity bibliographicEntity : bibliographicEntityList) {
             if (bibliographicEntity.getId() == null) {
                 updatedDummyRecordOwnInstBibIdSet.add(bibliographicEntity.getOwningInstitutionBibId());
@@ -305,7 +305,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         }
     }
 
-    private List<BarcodeBibliographicEntityObject> getBarcodeOwningInstitutionBibIdObjectList(List<BibliographicEntity> bibliographicEntityList) {
+    private static List<BarcodeBibliographicEntityObject> getBarcodeOwningInstitutionBibIdObjectList(List<BibliographicEntity> bibliographicEntityList) {
         List<BarcodeBibliographicEntityObject> barcodeOwningInstitutionBibIdObjectList = new ArrayList<>();
         for (BibliographicEntity bibliographicEntity : bibliographicEntityList) {
             if (null != bibliographicEntity.getItemEntities() && !bibliographicEntity.getItemEntities().isEmpty()) {
@@ -323,17 +323,17 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         return barcodeOwningInstitutionBibIdObjectList;
     }
 
-    private Map<String, List<BarcodeBibliographicEntityObject>> groupByBarcodeAndGetBarcodeBibliographicEntityObjectMap(List<BarcodeBibliographicEntityObject> barcodeOwningInstitutionBibIdObjectList) {
+    private static Map<String, List<BarcodeBibliographicEntityObject>> groupByBarcodeAndGetBarcodeBibliographicEntityObjectMap(List<BarcodeBibliographicEntityObject> barcodeOwningInstitutionBibIdObjectList) {
         return barcodeOwningInstitutionBibIdObjectList.stream()
                 .collect(Collectors.groupingBy(BarcodeBibliographicEntityObject::getBarcode));
     }
 
-    private Map<String, List<BibliographicEntity>> groupByOwnInstBibIdBibliographicEntityListMap(List<BibliographicEntity> bibliographicEntityList) {
+    private static Map<String, List<BibliographicEntity>> groupByOwnInstBibIdBibliographicEntityListMap(List<BibliographicEntity> bibliographicEntityList) {
         return bibliographicEntityList.stream()
                 .collect(Collectors.groupingBy(BibliographicEntity::getOwningInstitutionBibId));
     }
 
-    private Map<String, List<BibliographicEntity>> groupByBarcodeBibliographicEntityListMap(List<BibliographicEntity> bibliographicEntityList) {
+    private static Map<String, List<BibliographicEntity>> groupByBarcodeBibliographicEntityListMap(List<BibliographicEntity> bibliographicEntityList) {
         Map<String, List<BibliographicEntity>> groupByBarcodeBibliographicEntityListMap = new HashedMap();
         for (BibliographicEntity bibliographicEntity : bibliographicEntityList) {
             List<BibliographicEntity> addedBibliographicEntityList = groupByBarcodeBibliographicEntityListMap.get(bibliographicEntity.getItemEntities().get(0).getBarcode());
